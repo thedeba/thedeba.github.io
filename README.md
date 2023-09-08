@@ -1,3 +1,3 @@
 # Debashish Roy
 <br>
-<h2>Send me a coffee: <a href="https://www.buymeacoffee.com/thedeba">Here ☕️</a></h2>
+<div>Send me a coffee: <a href="https://www.buymeacoffee.com/thedeba">Here ☕️</a></div>

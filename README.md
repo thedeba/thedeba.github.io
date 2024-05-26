@@ -8,8 +8,7 @@
 <body>
     <div style="text-align: center;">
         <img src="https://scontent.fdac138-2.fna.fbcdn.net/v/t39.30808-6/283172334_3261750087482493_173394854267974659_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeGYJISgiGysPu1Mo3xyhkw3yvA-73LPO2nK8D7vcs87aRAWALHDCejRECrI5H7F-2s8wDxkdjDd--kbmWao3jfE&_nc_ohc=Wzdg_RHvnwcQ7kNvgH1HYae&_nc_ht=scontent.fdac138-2.fna&oh=00_AYC9kQCCOKhGfHhurpyEex9Mt2bw0SDD_zRhVuth0BPE7Q&oe=66594E4C" alt="Debashish" style="border-radius: 50%; width: 150px; height: 150px;">
-        <h1 style="color: #0073e6;">Debashish Roy</h1>
-        <p style="font-size: 1.2em; line-height: 1.6; text-align: justify;">Hi, I am Debashish Roy. I am passionate about technology and creating efficient software solutions. Here are some of the roles I excel in:</p>
+        <p style="font-size: 1.2em; line-height: 1.6; text-align: justify;">Hi, I am passionate about technology and creating efficient software solutions. Here are some of the roles I excel in:</p>
         <ul style="list-style-type: none; padding: 0;">
             <li style="background: #0073e6; color: white; margin: 5px; padding: 5px 10px; border-radius: 5px; display: inline-block;">Software Engineer</li>
             <li style="background: #0073e6; color: white; margin: 5px; padding: 5px 10px; border-radius: 5px; display: inline-block;">Full Stack Developer</li>

@@ -1,4 +1,4 @@
-# Debashish Roy &nbsp; ![Profile Views](https://komarev.com/ghpvc/?username=thedeba&style=for-the-badge)
+&nbsp; ![Profile Views](https://komarev.com/ghpvc/?username=thedeba&style=for-the-badge)
 
 
 <div align="center">

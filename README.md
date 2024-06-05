@@ -1,8 +1,7 @@
 &nbsp; ![Profile Views](https://komarev.com/ghpvc/?username=thedeba&style=for-the-badge)
 
-
 <div align="center">
-  <img src="https://scontent.fdac138-2.fna.fbcdn.net/v/t39.30808-6/283172334_3261750087482493_173394854267974659_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeGYJISgiGysPu1Mo3xyhkw3yvA-73LPO2nK8D7vcs87aRAWALHDCejRECrI5H7F-2s8wDxkdjDd--kbmWao3jfE&_nc_ohc=Wzdg_RHvnwcQ7kNvgH1HYae&_nc_ht=scontent.fdac138-2.fna&oh=00_AYC9kQCCOKhGfHhurpyEex9Mt2bw0SDD_zRhVuth0BPE7Q&oe=66594E4C" alt="Debashish" style="border-radius: 50%; width: 150px; height: 150px;">
+  <img src="https://img.freepik.com/premium-photo/civil-engineer-boy_917213-10937.jpg" alt="Debashish" style="border-radius: 50%; width: 150px; height: 150px;">
 </div>
 
 ## Hi 👋
@@ -61,7 +60,6 @@ This is a Flutter project. Many interesting features have been added and are wor
 <div align="center">
   <img src="https://github-readme-stats.vercel.app/api?username=thedeba&show_icons=true&theme=radical" alt="Debashish's GitHub stats">
 </div>
-
 
 ## Connect with me
 

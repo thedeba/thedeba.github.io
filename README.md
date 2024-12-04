@@ -1,7 +1,7 @@
 &nbsp; ![Profile Views](https://komarev.com/ghpvc/?username=thedeba&style=for-the-badge)
 
 <div align="center">
-  <a href="https://ibb.co.com/PCQXDfH"> <img src="https://i.ibb.co.com/QmdSD1w/deba.jpg" alt="Debashish" style="border-radius: 50%; width: 150px; height: 200px;">
+  <a href="https://ibb.co/QmdSD1w"> <img src="https://i.ibb.co/QmdSD1w/deba.jpg" alt="Debashish" style="border-radius: 50%; width: 150px; height: 200px;"> </a>
 </div>
 
 ## Hi 👋

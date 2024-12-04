@@ -1,21 +1,34 @@
 &nbsp; ![Profile Views](https://komarev.com/ghpvc/?username=thedeba&style=for-the-badge)
 
 <div align="center">
-  <a href="https://ibb.co/QmdSD1w"> <img src="https://i.ibb.co/QmdSD1w/deba.jpg" alt="Debashish" style="border-radius: 50%; width: 150px; height: 200px;"> </a>
+  <a href="https://ibb.co/QmdSD1w"> 
+    <img src="https://i.ibb.co/QmdSD1w/deba.jpg" alt="Debashish" style="border-radius: 3%; width: 180px; height: 240px; border: 1px solid #4CAF50; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); transition: all 0.3s ease-in-out;">
+  </a>
 </div>
 
-## Hi 👋
+<h1 align="center">Hi 👋, I'm Debashish Roy</h1>
+<p align="center" style="font-size: 18px; color: #333;">A passionate software engineer and full-stack developer</p>
 
-I'm Debashish Roy, a passionate software engineer and full stack developer with a knack for building scalable and efficient software solutions. With extensive experience in various programming languages and frameworks, I have developed a diverse skill set that allows me to tackle complex problems and deliver high-performance applications. I am always eager to learn new technologies and improve my craft.
+<div align="center">
+  <a href="https://github.com/thedeba" style="font-size: 22px; color: #0366d6;">Check out my GitHub</a>
+</div>
+
+## About Me
+
+<p style="font-size: 16px; color: #555;">With extensive experience in various programming languages and frameworks, I am passionate about building scalable and efficient software solutions. I am always eager to learn new technologies and improve my skills. Let’s connect and collaborate!</p>
 
 ## Roles I Excel In:
 
-- **Software Engineer**
-- **Full Stack Developer**
-- **Web Developer**
-- **Programmer**
-- **Coder**
-- **Software Developer**
+<div align="center">
+  <ul style="list-style-type: none; padding: 0;">
+    <li>⚙️ Software Engineer</li>
+    <li>🖥️ Full Stack Developer</li>
+    <li>🌐 Web Developer</li>
+    <li>📝 Programmer</li>
+    <li>💻 Coder</li>
+    <li>🔧 Software Developer</li>
+  </ul>
+</div>
 
 ## Skills
 
@@ -24,44 +37,43 @@ I'm Debashish Roy, a passionate software engineer and full stack developer with 
 - **Databases**: ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 - **Tools**: ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
-## Experience
-
-- **Trainee at SIS Inflexsion Point BD** (2023 - 2023)
-  - Various ARDUINO projects.
-  - ESP32 Projects
-  - Teams collaboration
-
-## Education
-
-- **Bachelor of Science in Computer Science** - Daffodil International University (2021 - 2025)
-
-## Achievements and Certifications
-
-- **Crack The Dataset 2023**
-- **Unlock The Algorithms 2023**
-- **Bootcamp - Machine Learning & Artificial Intelligence 2023**
-
 ## Projects
 
-### [Student Management System](https://github.com/thedeba/StudentManagementSystem)
-![Student Management System](https://img.shields.io/badge/Project-Student%20Management%20System-brightgreen)
-This project is made with C language. You can manage students and their data in this project and record the full history of a student.
+<div style="display: flex; justify-content: space-around; margin-top: 20px;">
+  <div style="width: 30%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; background-color: #f9f9f9;">
+    <h3>Student Management System</h3>
+    <p>This project is made with C language. Manage students and their data and record the full history of a student.</p>
+    <a href="https://github.com/thedeba/StudentManagementSystem" target="_blank">View Project</a>
+  </div>
+  
+  <div style="width: 30%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; background-color: #f9f9f9;">
+    <h3>Restaurant Management System</h3>
+    <p>Manage a restaurant with this fine OOP-based project made with Java. Many items and foods have been added.</p>
+    <a href="https://github.com/thedeba/ResturantManagementSystem" target="_blank">View Project</a>
+  </div>
 
-### [Restaurant Management System](https://github.com/thedeba/ResturantManagementSystem)
-![Restaurant Management System](https://img.shields.io/badge/Project-Restaurant%20Management%20System-brightgreen)
-This project is made with Java. This is also an OOP-based project. You can manage a restaurant with this fine project. Many items and foods have been added in this project.
-
-### [eRoute Admin](https://github.com/thedeba/erouteadmin)
-![eRoute Admin](https://img.shields.io/badge/Project-eRoute%20Admin-brightgreen)
-This is a Flutter project. Many interesting features have been added and are working perfectly. You can add live transport for your school, college, or university so that students can easily access the transport which is now scheduled for the desired route.
-
-## GitHub Stats
-
-<div align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=thedeba&show_icons=true&theme=radical" alt="Debashish's GitHub stats">
+  <div style="width: 30%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; background-color: #f9f9f9;">
+    <h3>eRoute Admin</h3>
+    <p>A Flutter project that enables live transport management for schools, colleges, and universities.</p>
+    <a href="https://github.com/thedeba/erouteadmin" target="_blank">View Project</a>
+  </div>
 </div>
 
-## Connect with me
+ <div style="width: 30%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; background-color: #f9f9f9;">
+    <h3>FoodHut</h3>
+    <p>This is a restaurant website project. This project is made of HTML, CSS, JS.</p>
+    <a href="https://github.com/thedeba/foodhut" target="_blank">View Project</a>
+  </div>
+</div>
+
+<div style="width: 30%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; background-color: #f9f9f9;">
+    <h3>Resturant</h3>
+    <p>This is a restaurant project. This project is made of java.</p>
+    <a href="https://github.com/thedeba/resturant" target="_blank">View Project</a>
+  </div>
+</div>
+
+## Connect with Me
 
 <div align="center">
   <a href="https://www.facebook.com/imdebashishroy">
@@ -78,7 +90,11 @@ This is a Flutter project. Many interesting features have been added and are wor
   </a>
 </div>
 
----
+## GitHub Stats
+
+<div align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=thedeba&show_icons=true&theme=radical" alt="Debashish's GitHub stats">
+</div>
 
 <div align="center" style="font-size: 16px;">
 &copy; 2024 Debashish Roy. <br> All rights reserved.

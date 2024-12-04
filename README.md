@@ -57,7 +57,6 @@
     <p>A Flutter project that enables live transport management for schools, colleges, and universities.</p>
     <a href="https://github.com/thedeba/erouteadmin" target="_blank">View Project</a>
   </div>
-</div>
 
  <div style="width: 30%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; background-color: #f9f9f9;">
     <h3>FoodHut</h3>
@@ -70,7 +69,7 @@
     <p>This is a restaurant project. This project is made of java.</p>
     <a href="https://github.com/thedeba/resturant" target="_blank">View Project</a>
   </div>
-
+</div>
 
 ## Connect with Me
 

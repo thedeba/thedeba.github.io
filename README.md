@@ -1,7 +1,7 @@
 &nbsp; ![Profile Views](https://komarev.com/ghpvc/?username=thedeba&style=for-the-badge)
 
 <div align="center">
-  <img src="https://img.freepik.com/premium-photo/civil-engineer-boy_917213-10937.jpg" alt="Debashish" style="border-radius: 50%; width: 150px; height: 150px;">
+  <a href="https://ibb.co.com/PCQXDfH"> <img src="https://i.ibb.co.com/QmdSD1w/deba.jpg" alt="Debashish" style="border-radius: 50%; width: 150px; height: 200px;">
 </div>
 
 ## Hi 👋
@@ -64,13 +64,13 @@ This is a Flutter project. Many interesting features have been added and are wor
 ## Connect with me
 
 <div align="center">
-  <a href="https://www.facebook.com/thedebaroy">
+  <a href="https://www.facebook.com/imdebashishroy">
     <img src="https://img.shields.io/badge/Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white" alt="Facebook">
   </a>
-  <a href="https://www.twitter.com/thedebaroy">
+  <a href="https://www.twitter.com/imdebashishroy">
     <img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white" alt="Twitter">
   </a>
-  <a href="https://www.linkedin.com/in/thedeba">
+  <a href="https://www.linkedin.com/in/imdebashishroy">
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
   </a>
   <a href="https://www.github.com/thedeba">

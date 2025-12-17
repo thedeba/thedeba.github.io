@@ -1,0 +1,69 @@
+[
+  {
+    "id": "1",
+    "title": "AI Image Generator",
+    "description": "A deep learning application that generates realistic images using GANs and diffusion models.",
+    "image": "/projects/ai-image.png",
+    "tech": ["Python", "PyTorch", "FastAPI", "React"],
+    "liveUrl": "https://ai-image-demo.com",
+    "githubUrl": "https://github.com/debashish/ai-image-generator",
+    "featured": true,
+    "category": "AI/ML"
+  },
+  {
+    "id": "2",
+    "title": "E-Commerce Platform",
+    "description": "Full-stack e-commerce solution with payment integration, inventory management, and analytics.",
+    "image": "/projects/ecommerce.png",
+    "tech": ["Next.js", "Node.js", "PostgreSQL", "Stripe"],
+    "liveUrl": "https://ecommerce-demo.com",
+    "githubUrl": "https://github.com/debashish/ecommerce-platform",
+    "featured": true,
+    "category": "Full Stack"
+  },
+  {
+    "id": "3",
+    "title": "ML Dashboard",
+    "description": "Interactive dashboard for visualizing machine learning model performance and predictions.",
+    "image": "/projects/ml-dashboard.png",
+    "tech": ["React", "D3.js", "TensorFlow.js", "Flask"],
+    "liveUrl": "https://ml-dashboard-demo.com",
+    "githubUrl": "https://github.com/debashish/ml-dashboard",
+    "featured": true,
+    "category": "AI/ML"
+  },
+  {
+    "id": "4",
+    "title": "Real-time Chat App",
+    "description": "Scalable chat application with real-time messaging, file sharing, and video calls.",
+    "image": "/projects/chat-app.png",
+    "tech": ["Next.js", "Socket.io", "WebRTC", "Redis"],
+    "liveUrl": "https://chat-demo.com",
+    "githubUrl": "https://github.com/debashish/chat-app",
+    "featured": false,
+    "category": "Full Stack"
+  },
+  {
+    "id": "5",
+    "title": "Portfolio Generator",
+    "description": "A tool that generates beautiful portfolio websites from a simple configuration file.",
+    "image": "/projects/portfolio-gen.png",
+    "tech": ["TypeScript", "React", "Tailwind CSS"],
+    "liveUrl": "https://portfolio-gen-demo.com",
+    "githubUrl": "https://github.com/debashish/portfolio-generator",
+    "featured": false,
+    "category": "Frontend"
+  },
+  {
+    "id": "6",
+    "title": "Task Management API",
+    "description": "RESTful API for task management with authentication, teams, and real-time updates.",
+    "image": "/projects/task-api.png",
+    "tech": ["Node.js", "Express", "MongoDB", "JWT"],
+    "liveUrl": "https://task-api-docs.com",
+    "githubUrl": "https://github.com/debashish/task-api",
+    "featured": false,
+    "category": "Backend"
+  }
+]
+

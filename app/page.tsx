@@ -11,7 +11,7 @@ import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import Stats from "./components/Stats";
 import BlogSkeleton from "./components/BlogSkeleton";
-import Testimonials from "./components/Testimonials";
+// import Testimonials from "./components/Testimonials";
 import Certifications from "./components/Certifications";
 import CurrentlyWorking from "./components/CurrentlyWorking";
 import GitHubContributions from "./components/GitHubContributions";
@@ -68,7 +68,12 @@ export default function Home() {
 
   // Typing animation effect
   useEffect(() => {
-    const fullText = "Software Engineer, ML/DL Engineer & Full Stack Developer";
+    const texts = [
+      "Software Engineer",
+      "ML/DL Engineer",
+      "Full Stack Developer"
+    ];
+    let textIndex = 0;
     let currentIndex = 0;
     let isDeleting = false;
     let waitTime = 0;
@@ -81,21 +86,24 @@ export default function Home() {
         return;
       }
 
-      if (!isDeleting && currentIndex < fullText.length) {
-        setDisplayedText(fullText.slice(0, currentIndex + 1));
+      const currentText = texts[textIndex];
+
+      if (!isDeleting && currentIndex < currentText.length) {
+        setDisplayedText(currentText.slice(0, currentIndex + 1));
         currentIndex++;
         timeoutId = setTimeout(typeText, 100);
       } else if (isDeleting && currentIndex > 0) {
-        setDisplayedText(fullText.slice(0, currentIndex - 1));
+        setDisplayedText(currentText.slice(0, currentIndex - 1));
         currentIndex--;
         timeoutId = setTimeout(typeText, 50);
-      } else if (currentIndex === fullText.length) {
+      } else if (currentIndex === currentText.length) {
         waitTime = 2000;
         isDeleting = true;
         timeoutId = setTimeout(typeText, 100);
       } else if (currentIndex === 0 && isDeleting) {
         isDeleting = false;
-        timeoutId = setTimeout(typeText, 100);
+        textIndex = (textIndex + 1) % texts.length;
+        timeoutId = setTimeout(typeText, 500);
       }
     };
 
@@ -131,7 +139,7 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white transition-colors duration-300">
       <Navbar onScrollTo={scrollToSection} />
 
       {/* Hero Section */}
@@ -237,11 +245,14 @@ export default function Home() {
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             <span className="text-gray-300 font-medium">
-              {displayedText}
+              I am a {displayedText}
+              {/* typing curso style  */}
               <motion.span
-                className="inline-block w-0.5 h-6 md:h-8 bg-blue-400 ml-1"
+                className="inline-block w-1 h-5 md:h-7 bg-gradient-to-b from-blue-400 via-purple-500 to-pink-500 ml-1 rounded-sm shadow-lg shadow-blue-500/50 align-text-bottom"
+                style={{ verticalAlign: 'text-bottom', height: '1.5rem' }}
                 animate={{
                   opacity: showCursor ? 1 : 0,
+                  scaleY: showCursor ? 1 : 0.8,
                 }}
                 transition={{
                   duration: 0.5,
@@ -281,7 +292,17 @@ export default function Home() {
             <motion.a
               href="/resume.pdf"
               target="_blank"
+              rel="noopener noreferrer"
               className="relative px-8 py-3 border-2 border-gray-500 hover:border-white rounded-full text-lg font-semibold transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              View Resume
+            </motion.a>
+            <motion.a
+              href="/resume.pdf"
+              download="Debashish_Resume.pdf"
+              className="relative px-8 py-3 border-2 border-purple-500 hover:border-purple-300 rounded-full text-lg font-semibold transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -331,8 +352,8 @@ export default function Home() {
             </div>
             <motion.div
               className="w-64 h-64 rounded-full mx-auto overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 400 }}
+              whileHover={{ scale: 1.5, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 500 }}
             >
               <img
                 src="/profile.png"
@@ -375,7 +396,7 @@ export default function Home() {
       <CodeSnippets />
 
       {/* Testimonials */}
-      <Testimonials />
+      {/* <Testimonials /> */}
 
       {/* Certifications */}
       <Certifications />
@@ -443,46 +464,46 @@ export default function Home() {
                   post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
                 )
                 .map((post, i) => (
-                <Link href={`/blog/${post.id}`} key={post.id}>
-                  <motion.article
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: i * 0.1 }}
-                    viewport={{ once: true }}
-                    className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors group cursor-pointer h-full"
-                    whileHover={{ y: -5 }}
-                  >
-                    <div className="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-600 rounded-lg mb-4 group-hover:scale-105 transition-transform overflow-hidden">
-                      <img src="/file.svg" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex items-center text-sm text-gray-400 mb-2">
-                      <span>{post.date}</span>
-                      <span className="mx-2">•</span>
-                      <span>{post.readTime}</span>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-3 group-hover:text-blue-400 transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-gray-300 leading-relaxed mb-4">{post.excerpt}</p>
-                    <div className="flex items-center text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
-                      Read More
-                      <svg
-                        className="w-4 h-4 ml-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </div>
-                  </motion.article>
-                </Link>
-              ))}
+                  <Link href={`/blog/${post.id}`} key={post.id}>
+                    <motion.article
+                      initial={{ opacity: 0, y: 50 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: i * 0.1 }}
+                      viewport={{ once: true }}
+                      className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors group cursor-pointer h-full"
+                      whileHover={{ y: -5 }}
+                    >
+                      <div className="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-600 rounded-lg mb-4 group-hover:scale-105 transition-transform overflow-hidden">
+                        <img src="/file.svg" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex items-center text-sm text-gray-400 mb-2">
+                        <span>{post.date}</span>
+                        <span className="mx-2">•</span>
+                        <span>{post.readTime}</span>
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3 group-hover:text-blue-400 transition-colors">
+                        {post.title}
+                      </h3>
+                      <p className="text-gray-300 leading-relaxed mb-4">{post.excerpt}</p>
+                      <div className="flex items-center text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
+                        Read More
+                        <svg
+                          className="w-4 h-4 ml-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </div>
+                    </motion.article>
+                  </Link>
+                ))}
             </div>
           )}
           {blogs.length > 3 && !showAllBlogs && (

@@ -1,9 +1,74 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from 'react';
+
+interface GitHubStats {
+  contributions: number;
+  publicRepos: number;
+  stars: number;
+  loading: boolean;
+  error: string | null;
+}
 
 export default function GitHubContributions() {
-  const username = "debashish"; // Replace with your GitHub username
+  const username = "thedeba";
+  const [stats, setStats] = useState<GitHubStats>({
+    contributions: 0,
+    publicRepos: 0,
+    stars: 0,
+    loading: true,
+    error: null
+  });
+
+  useEffect(() => {
+    const fetchGitHubStats = async () => {
+      try {
+        // Fetch user data
+        const userRes = await fetch(`https://api.github.com/users/${username}`);
+        if (!userRes.ok) throw new Error('Failed to fetch user data');
+        const userData = await userRes.json();
+
+        // Fetch all repositories to count stars
+        const reposRes = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
+        if (!reposRes.ok) throw new Error('Failed to fetch repositories');
+        const reposData = await reposRes.json();
+        
+        // Calculate total stars
+        const starsCount = reposData.reduce(
+          (acc: number, repo: any) => acc + repo.stargazers_count, 0
+        );
+
+        // Fetch contribution data (approximate, as GitHub's API doesn't provide exact count)
+        // This is a simple approximation and might not be 100% accurate
+        const eventsRes = await fetch(`https://api.github.com/users/${username}/events/public`);
+        if (!eventsRes.ok) throw new Error('Failed to fetch events');
+        const eventsData = await eventsRes.json();
+        const contributionsCount = new Set(
+          eventsData
+            .filter((event: any) => event.type === 'PushEvent')
+            .map((event: any) => `${event.repo.id}-${event.created_at.split('T')[0]}`)
+        ).size;
+
+        setStats({
+          contributions: contributionsCount,
+          publicRepos: userData.public_repos,
+          stars: starsCount,
+          loading: false,
+          error: null
+        });
+      } catch (error) {
+        console.error('Error fetching GitHub data:', error);
+        setStats(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Failed to load GitHub data. Please try again later.'
+        }));
+      }
+    };
+
+    fetchGitHubStats();
+  }, [username]);
 
   return (
     <section className="py-20 px-4">
@@ -55,18 +120,30 @@ export default function GitHubContributions() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mt-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-400">150+</div>
+              <div className="text-2xl font-bold text-blue-400">
+                {stats.loading ? '...' : stats.contributions.toLocaleString()}
+              </div>
               <div className="text-sm text-gray-400">Contributions</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-400">25+</div>
+              <div className="text-2xl font-bold text-purple-400">
+                {stats.loading ? '...' : stats.publicRepos.toLocaleString()}
+              </div>
               <div className="text-sm text-gray-400">Repositories</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-pink-400">50+</div>
+              <div className="text-2xl font-bold text-pink-400">
+                {stats.loading ? '...' : stats.stars.toLocaleString()}
+              </div>
               <div className="text-sm text-gray-400">Stars</div>
             </div>
           </div>
+          
+          {stats.error && (
+            <div className="mt-4 text-red-400 text-sm text-center">
+              {stats.error}
+            </div>
+          )}
         </motion.div>
       </div>
     </section>

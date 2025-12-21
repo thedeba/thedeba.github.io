@@ -5,17 +5,17 @@ import { motion } from "framer-motion";
 const currentWork = [
   {
     id: 1,
-    title: "Building an AI-Powered Analytics Platform",
-    description: "Developing a comprehensive analytics dashboard using React, TypeScript, and TensorFlow.js",
-    progress: 75,
-    tech: ["React", "TypeScript", "TensorFlow.js"],
+    title: "An Incorporated Security System",
+    description: "Developing an AI-incorporated security system featuring real-time video surveillance, face recognition, anomaly detection, and secure access control. Built using Python, TensorFlow, OpenCV, React, Node.js, and cloud infrastructure on AWS, focusing on scalability, data security, and real-world deployment.",
+    progress: 65,
+    tech: ["Python", "TensorFlow", "OpenCV", "Numpy", "PyTorch", "Node.js", "PostgreSQL", "MongoDB", "JWT", "Next.js"],
   },
   {
     id: 2,
     title: "Open Source Contribution",
-    description: "Contributing to Next.js and React open-source projects",
+    description: "Contributing to Datasets, Models, PyPl, GitHub, and open-source projects",
     progress: 40,
-    tech: ["Next.js", "React"],
+    tech: ["PyPl", "GitHub", "Datasets", "Codeforces", "LeetCode", "HackerRank", "HackerEarth", "Codewars", "CodinGame", "BeeCrowd", "CodeChef",],
   },
 ];
 

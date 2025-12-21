@@ -7,9 +7,14 @@ const skills = [
     category: "Languages",
     items: [
       { name: "Python", level: 90 },
+      { name: "JAVA", level: 70 },
+      { name: "C", level: 90 },
+      { name: "C++", level: 75 },
       { name: "JavaScript", level: 85 },
       { name: "TypeScript", level: 80 },
-      { name: "C++", level: 75 },
+      { name: "SQL", level: 90 },
+      { name: "PHP", level: 75 },
+      { name: "DART", level: 80 },
     ],
   },
   {
@@ -28,15 +33,25 @@ const skills = [
       { name: "Express", level: 80 },
       { name: "FastAPI", level: 75 },
       { name: "PostgreSQL", level: 80 },
+      { name: "MongoDB", level: 78 },
+      { name: "Redis", level: 50 },
+      { name: "Docker", level: 65 },
+      { name: "MySQL", level: 90 },
     ],
   },
   {
     category: "AI/ML",
     items: [
+      { name: "Transformers", level: 70 },
       { name: "TensorFlow", level: 85 },
+      { name: "Datasets", lavel: 80 },
       { name: "PyTorch", level: 80 },
       { name: "Scikit-learn", level: 85 },
       { name: "OpenCV", level: 75 },
+      { name: "Pandas", level: 85 },
+      { name: "NumPy", level: 75 },
+      { name: "Matplotlib", level: 83 },
+      { name: "Seaborn", level: 90 },
     ],
   },
 ];
@@ -133,4 +148,3 @@ export default function Skills() {
     </section>
   );
 }
-

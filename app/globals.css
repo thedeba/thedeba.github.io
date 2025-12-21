@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
 :root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+:root.light {
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -12,15 +17,51 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light theme overrides */
+.light .bg-gradient-to-br.from-gray-900 {
+  background: linear-gradient(to bottom right, #f9fafb, #ffffff, #f3f4f6) !important;
+}
+
+.light .bg-gradient-to-br {
+  background: linear-gradient(to bottom right, #f3f4f6, #e5e7eb, #d1d5db) !important;
+}
+
+.light .bg-gray-900 {
+  background-color: #f9fafb !important;
+}
+
+.light .bg-gray-800 {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb;
+}
+
+.light .bg-gray-700 {
+  background-color: #f3f4f6 !important;
+}
+
+.light .text-white {
+  color: #111827 !important;
+}
+
+.light .text-gray-300 {
+  color: #4b5563 !important;
+}
+
+.light .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+.light .border-gray-700 {
+  border-color: #d1d5db !important;
+}
+
+.light .border-gray-500 {
+  border-color: #9ca3af !important;
 }

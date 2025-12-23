@@ -55,7 +55,7 @@ export default function AdminLogin() {
               Admin Portal
             </h1>
             <p className="text-gray-400 text-sm">
-              Sign in to manage your portfolio
+              Sign in to manage data
             </p>
           </motion.div>
 
@@ -146,7 +146,7 @@ export default function AdminLogin() {
           className="mt-6 text-center"
         >
           <p className="text-gray-500 text-xs">
-            Don't have an account? Create one in your Supabase dashboard
+            Only Authorized can login
           </p>
         </motion.div>
       </motion.div>

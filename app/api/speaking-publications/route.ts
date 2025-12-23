@@ -1,30 +1,12 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { verifyAdminAuth } from '@/lib/auth';
+import { speakingPublicationsOperations } from '@/lib/supabase-data';
 
 export const dynamic = 'force-dynamic';
 
-const dataFilePath = path.join(process.cwd(), 'data/speaking-publications.json');
-
-// Helper function to read data file
-async function readDataFile() {
-  try {
-    const file = await fs.readFile(dataFilePath, 'utf8');
-    return JSON.parse(file);
-  } catch (error: unknown) {
-    // If file doesn't exist, return default structure
-    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-      return { speakingEngagements: [], publications: [] };
-    }
-    console.error('Error reading data file:', error);
-    throw new Error('Failed to read data file');
-  }
-}
-
 export async function GET() {
   try {
-    const data = await readDataFile();
+    const data = await speakingPublicationsOperations.getAll();
     return NextResponse.json(data);
   } catch (error: unknown) {
     console.error('Error reading data:', error);
@@ -38,7 +20,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   // Verify authentication
-  const isAuthorized = await verifyAdminAuth();
+  const isAuthorized = await verifyAdminAuth(request);
   if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -53,15 +35,12 @@ export async function POST(request: Request) {
       );
     }
     
-    // Ensure the data directory exists
-    await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
-    
-    // Write the data to the file with proper formatting
-    await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
+    const updatedData = await speakingPublicationsOperations.updateAll(data);
     
     return NextResponse.json({ 
       success: true,
       message: 'Data saved successfully',
+      data: updatedData,
       timestamp: new Date().toISOString()
     });
     

@@ -1,52 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { verifyAdminAuth } from '@/lib/auth';
+import { blogOperations, Blog } from '@/lib/supabase-data';
 
 export const dynamic = 'force-dynamic';
 
-const dataFilePath = path.join(process.cwd(), 'data', 'blogs.json');
-
-interface Blog {
-  id: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  readTime: string;
-  content: string;
-}
-
-function readBlogs(): Blog[] {
-  try {
-    const data = fs.readFileSync(dataFilePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-function writeBlogs(blogs: Blog[]): void {
-  fs.writeFileSync(dataFilePath, JSON.stringify(blogs, null, 2));
-}
-
 export async function GET() {
-  const blogs = readBlogs();
-  return NextResponse.json(blogs);
+  try {
+    const blogs = await blogOperations.getAll();
+    return NextResponse.json(blogs);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch blogs' }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
   // Verify authentication
-  const isAuthorized = await verifyAdminAuth();
+  const isAuthorized = await verifyAdminAuth(request);
   if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const body = await request.json();
-    const blogs = readBlogs();
 
-    const newBlog: Blog = {
-      id: Date.now().toString(),
+    const newBlog = await blogOperations.create({
       title: body.title,
       excerpt: body.excerpt,
       content: body.content,
@@ -55,11 +32,8 @@ export async function POST(request: NextRequest) {
         month: 'short',
         day: 'numeric'
       }),
-      readTime: body.readTime || '5 min read'
-    };
-
-    blogs.unshift(newBlog); // Add to beginning
-    writeBlogs(blogs);
+      read_time: body.readTime || '5 min read'
+    });
 
     return NextResponse.json(newBlog, { status: 201 });
   } catch (error) {
@@ -69,30 +43,22 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   // Verify authentication
-  const isAuthorized = await verifyAdminAuth();
+  const isAuthorized = await verifyAdminAuth(request);
   if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const body = await request.json();
-    const blogs = readBlogs();
 
-    const index = blogs.findIndex(blog => blog.id === body.id);
-    if (index === -1) {
-      return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
-    }
-
-    blogs[index] = {
-      ...blogs[index],
+    const updatedBlog = await blogOperations.update(body.id, {
       title: body.title,
       excerpt: body.excerpt,
       content: body.content,
-      readTime: body.readTime
-    };
+      read_time: body.readTime
+    });
 
-    writeBlogs(blogs);
-    return NextResponse.json(blogs[index]);
+    return NextResponse.json(updatedBlog);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update blog' }, { status: 500 });
   }
@@ -100,7 +66,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   // Verify authentication
-  const isAuthorized = await verifyAdminAuth();
+  const isAuthorized = await verifyAdminAuth(request);
   if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -113,14 +79,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
-    const blogs = readBlogs();
-    const filteredBlogs = blogs.filter(blog => blog.id !== id);
-
-    if (filteredBlogs.length === blogs.length) {
-      return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
-    }
-
-    writeBlogs(filteredBlogs);
+    await blogOperations.delete(id);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete blog' }, { status: 500 });

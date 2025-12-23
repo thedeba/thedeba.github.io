@@ -157,9 +157,15 @@ export default function Admin() {
     };
 
     try {
+      // Get session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const response = await fetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`
+        },
         body: JSON.stringify(body)
       });
 
@@ -167,6 +173,8 @@ export default function Admin() {
         loadData();
         resetBlogForm();
         alert(`Blog ${isEditing ? 'updated' : 'created'} successfully!`);
+      } else {
+        alert('Error saving data');
       }
     } catch (error) {
       console.error('Error saving:', error);
@@ -185,9 +193,15 @@ export default function Admin() {
     };
 
     try {
+      // Get session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const response = await fetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`
+        },
         body: JSON.stringify(body)
       });
 
@@ -195,6 +209,8 @@ export default function Admin() {
         loadData();
         resetProjectForm();
         alert(`Project ${isEditing ? 'updated' : 'created'} successfully!`);
+      } else {
+        alert('Error saving data');
       }
     } catch (error) {
       console.error('Error saving:', error);
@@ -237,11 +253,21 @@ export default function Admin() {
     const endpoint = activeTab === 'blogs' ? `/api/blogs?id=${id}` : `/api/projects?id=${id}`;
 
     try {
-      const response = await fetch(endpoint, { method: 'DELETE' });
+      // Get session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch(endpoint, { 
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token || ''}`
+        }
+      });
 
       if (response.ok) {
         loadData();
         alert('Item deleted successfully!');
+      } else {
+        alert('Error deleting item');
       }
     } catch (error) {
       console.error('Error deleting:', error);
@@ -297,14 +323,22 @@ export default function Admin() {
 
   const handleSpeakingSave = async () => {
     try {
+      // Get session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const response = await fetch('/api/speaking-publications', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`
+        },
         body: JSON.stringify({ speakingEngagements, publications }),
       });
       
       if (response.ok) {
         alert('Speaking & Publications saved successfully!');
+      } else {
+        alert('Error saving data');
       }
     } catch (error) {
       console.error('Error saving:', error);

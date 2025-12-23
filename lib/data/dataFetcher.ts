@@ -7,7 +7,7 @@ interface Blog {
   title: string;
   excerpt: string;
   date: string;
-  readTime: string;
+  read_time: string;
   content: string;
 }
 
@@ -17,8 +17,8 @@ interface Project {
   description: string;
   image: string;
   tech: string[];
-  liveUrl: string;
-  githubUrl: string;
+  live_url: string;
+  github_url: string;
   featured: boolean;
   category: string;
 }
@@ -88,21 +88,8 @@ export function isClientSideStatic(): boolean {
   return window.location.hostname === 'thedeba.github.io';
 }
 
-// Client-side data fetchers
+// Client-side data fetchers - now all use API since we moved to Supabase
 export async function fetchBlogsClient(): Promise<Blog[]> {
-  if (isClientSideStatic()) {
-    // For GitHub Pages, fetch the static JSON file
-    try {
-      const response = await fetch('/debashish-portfolio/data/blogs.json');
-      if (!response.ok) throw new Error('Failed to fetch static blogs');
-      return response.json();
-    } catch (error) {
-      console.error('Error fetching static blogs:', error);
-      return [];
-    }
-  }
-  
-  // Dynamic environment - use API
   try {
     const response = await fetch('/api/blogs');
     if (!response.ok) throw new Error('Failed to fetch blogs');
@@ -114,17 +101,6 @@ export async function fetchBlogsClient(): Promise<Blog[]> {
 }
 
 export async function fetchProjectsClient(): Promise<Project[]> {
-  if (isClientSideStatic()) {
-    try {
-      const response = await fetch('/debashish-portfolio/data/projects.json');
-      if (!response.ok) throw new Error('Failed to fetch static projects');
-      return response.json();
-    } catch (error) {
-      console.error('Error fetching static projects:', error);
-      return [];
-    }
-  }
-  
   try {
     const response = await fetch('/api/projects');
     if (!response.ok) throw new Error('Failed to fetch projects');
@@ -136,17 +112,6 @@ export async function fetchProjectsClient(): Promise<Project[]> {
 }
 
 export async function fetchSpeakingPublicationsClient(): Promise<SpeakingPublicationsData> {
-  if (isClientSideStatic()) {
-    try {
-      const response = await fetch('/debashish-portfolio/data/speaking-publications.json');
-      if (!response.ok) throw new Error('Failed to fetch static speaking publications');
-      return response.json();
-    } catch (error) {
-      console.error('Error fetching static speaking publications:', error);
-      return { speakingEngagements: [], publications: [] };
-    }
-  }
-  
   try {
     const response = await fetch('/api/speaking-publications');
     if (!response.ok) throw new Error('Failed to fetch speaking publications');

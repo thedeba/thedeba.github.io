@@ -324,7 +324,7 @@ export default function Home() {
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-4">About Me</h2>
             <p className="text-gray-300 text-lg">
-              Passionate about creating beautiful, functional web experiences.
+              Passionate about creating functional, beautiful and user-friendly experiences.
             </p>
           </motion.div>
           <motion.div

@@ -20,9 +20,9 @@ const skills = [
   {
     category: "Frontend",
     items: [
-      { name: "React", level: 90 },
       { name: "Next.js", level: 85 },
       { name: "Tailwind CSS", level: 90 },
+      { name: "React", level: 90 },
       { name: "HTML/CSS", level: 95 },
     ],
   },
@@ -44,7 +44,6 @@ const skills = [
     items: [
       { name: "Transformers", level: 70 },
       { name: "TensorFlow", level: 85 },
-      { name: "Datasets", lavel: 80 },
       { name: "PyTorch", level: 80 },
       { name: "Scikit-learn", level: 85 },
       { name: "OpenCV", level: 75 },
@@ -58,7 +57,9 @@ const skills = [
 
 const tools = [
   "Git", "Docker", "AWS", "Firebase", "MongoDB", "Redis", 
-  "Linux", "VS Code", "Figma", "Jupyter", "Pandas", "NumPy"
+  "Linux", "VS Code", "Figma", "Jupyter", "Pandas", "NumPy",
+  "Matplotlib", "Seaborn", "Scikit-learn",
+  "TensorFlow", "PyTorch", "HuggingFace"
 ];
 
 export default function Skills() {

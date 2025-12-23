@@ -22,7 +22,7 @@ export default function ContactForm() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
       // For now, open mailto with the form data
-      const mailtoLink = `mailto:debashish@example.com?subject=${encodeURIComponent(
+      const mailtoLink = `mailto:thedeba@icloud.com?subject=${encodeURIComponent(
         formData.subject
       )}&body=${encodeURIComponent(
         `Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}`
@@ -72,8 +72,8 @@ export default function ContactForm() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">Email</h3>
-                <a href="mailto:debashish@example.com" className="text-gray-400 hover:text-blue-400 transition-colors">
-                  debashish@example.com
+                <a href="mailto:thedeba@icloud.com" className="text-gray-400 hover:text-blue-400 transition-colors">
+                  thedeba@icloud.com
                 </a>
               </div>
             </div>

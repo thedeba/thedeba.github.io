@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface Blog {
   id: string;
@@ -24,12 +27,35 @@ interface Project {
   category: string;
 }
 
+interface SpeakingEngagement {
+  id: number;
+  title: string;
+  event: string;
+  date: string;
+  location: string;
+  type: 'talk' | 'workshop' | 'panel';
+}
+
+interface Publication {
+  id: number;
+  title: string;
+  journal: string;
+  date: string;
+  authors: string;
+  link: string;
+}
+
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState<'blogs' | 'projects'>('blogs');
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'blogs' | 'projects' | 'speaking'>('blogs');
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [speakingEngagements, setSpeakingEngagements] = useState<SpeakingEngagement[]>([]);
+  const [publications, setPublications] = useState<Publication[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingItem, setEditingItem] = useState<Blog | Project | null>(null);
+  const [editingItem, setEditingItem] = useState<Blog | Project | SpeakingEngagement | Publication | null>(null);
 
   // Form states
   const [blogFormData, setBlogFormData] = useState({
@@ -50,15 +76,55 @@ export default function Admin() {
     category: 'Other'
   });
 
+  const [speakingFormData, setSpeakingFormData] = useState({
+    title: '',
+    event: '',
+    date: '',
+    location: '',
+    type: 'talk' as 'talk' | 'workshop' | 'panel'
+  });
+
+  const [publicationFormData, setPublicationFormData] = useState({
+    title: '',
+    journal: '',
+    date: '',
+    authors: '',
+    link: ''
+  });
+
   useEffect(() => {
-    loadData();
-  }, []);
+    // Check authentication
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push('/auth/login');
+        return;
+      }
+      setUser(session.user);
+      setLoading(false);
+      loadData();
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        router.push('/auth/login');
+      } else {
+        setUser(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router]);
 
   const loadData = async () => {
     try {
-      const [blogsResponse, projectsResponse] = await Promise.all([
+      const [blogsResponse, projectsResponse, speakingResponse] = await Promise.all([
         fetch('/api/blogs'),
-        fetch('/api/projects')
+        fetch('/api/projects'),
+        fetch('/api/speaking-publications')
       ]);
 
       if (blogsResponse.ok) {
@@ -69,6 +135,12 @@ export default function Admin() {
       if (projectsResponse.ok) {
         const projectsData = await projectsResponse.json();
         setProjects(projectsData);
+      }
+
+      if (speakingResponse.ok) {
+        const speakingData = await speakingResponse.json();
+        setSpeakingEngagements(speakingData.speakingEngagements || []);
+        setPublications(speakingData.publications || []);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -130,7 +202,7 @@ export default function Admin() {
     }
   };
 
-  const handleEdit = (item: Blog | Project) => {
+  const handleEdit = (item: Blog | Project | SpeakingEngagement | Publication) => {
     setIsEditing(true);
     setEditingItem(item);
 
@@ -142,7 +214,7 @@ export default function Admin() {
         content: blog.content,
         readTime: blog.readTime,
       });
-    } else {
+    } else if (activeTab === 'projects') {
       const project = item as Project;
       setProjectFormData({
         title: project.title,
@@ -154,6 +226,8 @@ export default function Admin() {
         featured: project.featured,
         category: project.category,
       });
+    } else {
+      // Handle speaking/publications editing inline
     }
   };
 
@@ -201,16 +275,88 @@ export default function Admin() {
     setEditingItem(null);
   };
 
+  const addSpeakingEngagement = () => {
+    const newItem = { ...speakingFormData, id: Date.now() };
+    setSpeakingEngagements([...speakingEngagements, newItem]);
+    setSpeakingFormData({ title: '', event: '', date: '', location: '', type: 'talk' });
+  };
+
+  const removeSpeakingEngagement = (id: number) => {
+    setSpeakingEngagements(speakingEngagements.filter(item => item.id !== id));
+  };
+
+  const addPublication = () => {
+    const newItem = { ...publicationFormData, id: Date.now() };
+    setPublications([...publications, newItem]);
+    setPublicationFormData({ title: '', journal: '', date: '', authors: '', link: '' });
+  };
+
+  const removePublication = (id: number) => {
+    setPublications(publications.filter(item => item.id !== id));
+  };
+
+  const handleSpeakingSave = async () => {
+    try {
+      const response = await fetch('/api/speaking-publications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ speakingEngagements, publications }),
+      });
+      
+      if (response.ok) {
+        alert('Speaking & Publications saved successfully!');
+      }
+    } catch (error) {
+      console.error('Error saving:', error);
+      alert('Error saving data');
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-8">
       <div className="max-w-6xl mx-auto">
+        {/* Header with logout */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="flex justify-between items-center mb-8"
         >
-          <h1 className="text-4xl font-bold mb-4">Admin Panel</h1>
-          <p className="text-gray-300">Manage your blogs and projects</p>
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Admin Panel</h1>
+            <p className="text-gray-300">Manage your blogs and projects</p>
+            {user && (
+              <p className="text-sm text-gray-400 mt-1">
+                Logged in as: {user.email}
+              </p>
+            )}
+          </div>
+          <div className="flex gap-4">
+            <Link
+              href="/"
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors"
+            >
+              View Site
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors"
+            >
+              Logout
+            </button>
+          </div>
         </motion.div>
 
         {/* Tabs */}
@@ -241,6 +387,18 @@ export default function Admin() {
           >
             Projects
           </button>
+          <button
+            onClick={() => {
+              setActiveTab('speaking');
+            }}
+            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+              activeTab === 'speaking'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Speaking & Publications
+          </button>
         </div>
         
 
@@ -252,10 +410,160 @@ export default function Admin() {
             className="bg-gray-800 rounded-lg p-6"
           >
             <h2 className="text-2xl font-bold mb-6">
-              {isEditing ? 'Edit' : 'Add'} {activeTab === 'blogs' ? 'Blog' : 'Project'}
+              {activeTab === 'speaking' ? 'Speaking & Publications Management' : 
+               isEditing ? 'Edit' : 'Add'} {activeTab === 'blogs' ? 'Blog' : 
+               activeTab === 'projects' ? 'Project' : ''}
             </h2>
 
-            {activeTab === 'blogs' ? (
+            {activeTab === 'speaking' ? (
+              <div className="space-y-8">
+                {/* Speaking Engagements Section */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="text-xl font-semibold mb-4">Speaking Engagements</h3>
+                  
+                  <div className="grid md:grid-cols-3 gap-4 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Title"
+                      className="p-2 bg-gray-600 rounded"
+                      value={speakingFormData.title}
+                      onChange={(e) => setSpeakingFormData({...speakingFormData, title: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Event"
+                      className="p-2 bg-gray-600 rounded"
+                      value={speakingFormData.event}
+                      onChange={(e) => setSpeakingFormData({...speakingFormData, event: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Date (e.g., January 2024)"
+                      className="p-2 bg-gray-600 rounded"
+                      value={speakingFormData.date}
+                      onChange={(e) => setSpeakingFormData({...speakingFormData, date: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Location"
+                      className="p-2 bg-gray-600 rounded"
+                      value={speakingFormData.location}
+                      onChange={(e) => setSpeakingFormData({...speakingFormData, location: e.target.value})}
+                    />
+                    <select
+                      className="p-2 bg-gray-600 rounded"
+                      value={speakingFormData.type}
+                      onChange={(e) => setSpeakingFormData({...speakingFormData, type: e.target.value as any})}
+                    >
+                      <option value="talk">Talk</option>
+                      <option value="workshop">Workshop</option>
+                      <option value="panel">Panel</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={addSpeakingEngagement}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium"
+                    >
+                      Add Engagement
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {speakingEngagements.map((item) => (
+                      <div key={item.id} className="flex justify-between items-center p-3 bg-gray-600 rounded">
+                        <div>
+                          <h4 className="font-medium">{item.title}</h4>
+                          <p className="text-sm text-gray-300">{item.event} • {item.date}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeSpeakingEngagement(item.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Publications Section */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="text-xl font-semibold mb-4">Publications</h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Title"
+                      className="p-2 bg-gray-600 rounded"
+                      value={publicationFormData.title}
+                      onChange={(e) => setPublicationFormData({...publicationFormData, title: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Journal/Conference"
+                      className="p-2 bg-gray-600 rounded"
+                      value={publicationFormData.journal}
+                      onChange={(e) => setPublicationFormData({...publicationFormData, journal: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Date (e.g., 2024)"
+                      className="p-2 bg-gray-600 rounded"
+                      value={publicationFormData.date}
+                      onChange={(e) => setPublicationFormData({...publicationFormData, date: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Authors"
+                      className="p-2 bg-gray-600 rounded"
+                      value={publicationFormData.authors}
+                      onChange={(e) => setPublicationFormData({...publicationFormData, authors: e.target.value})}
+                    />
+                    <input
+                      type="url"
+                      placeholder="Link to publication"
+                      className="p-2 bg-gray-600 rounded md:col-span-2"
+                      value={publicationFormData.link}
+                      onChange={(e) => setPublicationFormData({...publicationFormData, link: e.target.value})}
+                    />
+                    <button
+                      type="button"
+                      onClick={addPublication}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium md:col-span-2"
+                    >
+                      Add Publication
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {publications.map((item) => (
+                      <div key={item.id} className="flex justify-between items-center p-3 bg-gray-600 rounded">
+                        <div>
+                          <h4 className="font-medium">{item.title}</h4>
+                          <p className="text-sm text-gray-300">{item.journal} • {item.date}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removePublication(item.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSpeakingSave}
+                  className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium"
+                >
+                  Save All Changes
+                </button>
+              </div>
+            ) : activeTab === 'blogs' ? (
               <form onSubmit={handleBlogSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Title</label>
@@ -423,11 +731,39 @@ export default function Admin() {
             className="bg-gray-800 rounded-lg p-6"
           >
             <h2 className="text-2xl font-bold mb-6">
-              {activeTab === 'blogs' ? 'Blog Posts' : 'Projects'} ({activeTab === 'blogs' ? blogs.length : projects.length})
+              {activeTab === 'speaking' ? 'Current Speaking & Publications' :
+               activeTab === 'blogs' ? 'Blog Posts' : 'Projects'} 
+              ({activeTab === 'speaking' ? `${speakingEngagements.length + publications.length} items` :
+                activeTab === 'blogs' ? blogs.length : projects.length})
             </h2>
 
             <div className="space-y-4 max-h-[500px] overflow-y-auto">
-              {activeTab === 'blogs' ? (
+              {activeTab === 'speaking' ? (
+                <>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-blue-400">Speaking Engagements ({speakingEngagements.length})</h3>
+                    {speakingEngagements.map((item) => (
+                      <div key={item.id} className="bg-gray-700 rounded-lg p-4">
+                        <h4 className="font-semibold mb-1">{item.title}</h4>
+                        <p className="text-sm text-gray-300 mb-2">{item.event} • {item.date} • {item.location}</p>
+                        <span className="inline-block px-2 py-1 bg-blue-600 text-xs rounded mb-2">
+                          {item.type}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-purple-400">Publications ({publications.length})</h3>
+                    {publications.map((item) => (
+                      <div key={item.id} className="bg-gray-700 rounded-lg p-4">
+                        <h4 className="font-semibold mb-1">{item.title}</h4>
+                        <p className="text-sm text-gray-300 mb-2">{item.journal} • {item.date}</p>
+                        <p className="text-sm text-gray-400">{item.authors}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : activeTab === 'blogs' ? (
                 blogs.map((item) => (
                   <div key={item.id} className="bg-gray-700 rounded-lg p-4">
                     <h3 className="font-semibold mb-2">{item.title}</h3>

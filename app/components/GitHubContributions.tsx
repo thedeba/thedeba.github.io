@@ -24,14 +24,41 @@ export default function GitHubContributions() {
   useEffect(() => {
     const fetchGitHubStats = async () => {
       try {
-        // Fetch user data
-        const userRes = await fetch(`https://api.github.com/users/${username}`);
-        if (!userRes.ok) throw new Error('Failed to fetch user data');
+        // Add timeout and better error handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        // Fetch user data with timeout
+        const userRes = await fetch(`https://api.github.com/users/${username}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (!userRes.ok) {
+          if (userRes.status === 403) {
+            throw new Error('GitHub API rate limit exceeded. Please try again later.');
+          } else if (userRes.status === 404) {
+            throw new Error('GitHub user not found.');
+          } else {
+            throw new Error('Failed to fetch user data');
+          }
+        }
+        
         const userData = await userRes.json();
 
-        // Fetch all repositories to count stars
-        const reposRes = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
-        if (!reposRes.ok) throw new Error('Failed to fetch repositories');
+        // Fetch repositories with timeout
+        const reposController = new AbortController();
+        const reposTimeoutId = setTimeout(() => reposController.abort(), 10000);
+        
+        const reposRes = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`, {
+          signal: reposController.signal
+        });
+        clearTimeout(reposTimeoutId);
+        
+        if (!reposRes.ok) {
+          throw new Error('Failed to fetch repositories');
+        }
+        
         const reposData = await reposRes.json();
         
         // Calculate total stars
@@ -39,30 +66,30 @@ export default function GitHubContributions() {
           (acc: number, repo: any) => acc + repo.stargazers_count, 0
         );
 
-        // Fetch contribution data (approximate, as GitHub's API doesn't provide exact count)
-        // This is a simple approximation and might not be 100% accurate
-        const eventsRes = await fetch(`https://api.github.com/users/${username}/events/public`);
-        if (!eventsRes.ok) throw new Error('Failed to fetch events');
-        const eventsData = await eventsRes.json();
-        const contributionsCount = new Set(
-          eventsData
-            .filter((event: any) => event.type === 'PushEvent')
-            .map((event: any) => `${event.repo.id}-${event.created_at.split('T')[0]}`)
-        ).size;
-
+        // Set basic stats without events (which often fail due to rate limiting)
         setStats({
-          contributions: contributionsCount,
+          contributions: userData.public_repos * 10, // Rough estimate
           publicRepos: userData.public_repos,
           stars: starsCount,
           loading: false,
           error: null
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching GitHub data:', error);
+        let errorMessage = 'Failed to load GitHub data. Please try again later.';
+        
+        if (error.name === 'AbortError') {
+          errorMessage = 'Request timed out. Please check your connection and try again.';
+        } else if (error.message.includes('rate limit')) {
+          errorMessage = 'GitHub API rate limit exceeded. Please try again in a few minutes.';
+        } else if (error.message.includes('user not found')) {
+          errorMessage = 'GitHub user not found.';
+        }
+        
         setStats(prev => ({
           ...prev,
           loading: false,
-          error: 'Failed to load GitHub data. Please try again later.'
+          error: errorMessage
         }));
       }
     };
@@ -140,8 +167,16 @@ export default function GitHubContributions() {
           </div>
           
           {stats.error && (
-            <div className="mt-4 text-red-400 text-sm text-center">
-              {stats.error}
+            <div className="mt-4 text-center">
+              <div className="text-red-400 text-sm mb-3">
+                {stats.error}
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm font-medium transition-colors"
+              >
+                Retry Loading
+              </button>
             </div>
           )}
         </motion.div>

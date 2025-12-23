@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Debashish's Portfolio
 
-## Getting Started
+A modern, responsive portfolio website built with Next.js, TypeScript, and Tailwind CSS. This portfolio showcases my skills, projects, experience, and blog posts in a clean, interactive interface.
 
-First, run the development server:
+[![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR_NETLIFY_SITE_ID/deploy-status)](https://app.netlify.com/sites/YOUR_SITE_NAME/deploys)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Features
+
+- **Modern UI/UX** with smooth animations using Framer Motion
+- **Dark/Light Mode** with theme toggle
+- **Responsive Design** that works on all devices
+- **Interactive Components** including:
+  - Project showcase with filtering
+  - Skills visualization
+  - Experience timeline
+  - Contact form with validation
+  - GitHub contributions graph
+  - Code snippets section
+- **Performance Optimized** with Next.js 13+ features
+- **SEO Optimized** with proper metadata and semantic HTML
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 13+ (App Router)
+- **Styling**: Tailwind CSS
+- **Animation**: Framer Motion
+- **Form Handling**: React Hook Form
+- **Icons**: Lucide Icons
+- **Deployment**: Netlify
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 16.8 or later
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/portfolio.git
+   cd portfolio
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Run the development server
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## 📂 Project Structure
+
+```
+.
+├── app/                    # App router pages and layouts
+│   ├── api/               # API routes
+│   ├── components/        # Reusable components
+│   ├── styles/            # Global styles
+│   └── page.tsx           # Home page
+├── public/                # Static files
+├── types/                 # TypeScript type definitions
+└── package.json           # Project dependencies
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔧 Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file in the root directory and add the following variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_GITHUB_USERNAME=your-github-username
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=your-emailjs-service-id
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your-emailjs-template-id
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your-emailjs-public-key
+```
 
-## Learn More
+## 🚀 Deployment
 
-To learn more about Next.js, take a look at the following resources:
+This project is configured to deploy on Netlify. To deploy your own version:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Fork this repository
+2. Connect your GitHub repository to Netlify
+3. Configure your environment variables in the Netlify dashboard
+4. Deploy!
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📝 License
 
-## Deploy on Vercel
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🙏 Acknowledgments
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Lucide Icons](https://lucide.dev/)

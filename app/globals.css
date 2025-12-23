@@ -3,6 +3,7 @@
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 :root.light {
@@ -21,29 +22,43 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+}
+
+/* Disable transitions when needed */
+.no-transition,
+.no-transition *,
+.no-transition *::before,
+.no-transition *::after {
+  transition: none !important;
 }
 
 /* Light theme overrides */
 .light .bg-gradient-to-br.from-gray-900 {
   background: linear-gradient(to bottom right, #f9fafb, #ffffff, #f3f4f6) !important;
+  transition: background 0.5s ease !important;
 }
 
 .light .bg-gradient-to-br {
   background: linear-gradient(to bottom right, #f3f4f6, #e5e7eb, #d1d5db) !important;
+  transition: background 0.5s ease !important;
 }
 
 .light .bg-gray-900 {
   background-color: #f9fafb !important;
+  transition: background-color 0.5s ease !important;
 }
 
 .light .bg-gray-800 {
   background-color: #ffffff !important;
   border: 1px solid #e5e7eb;
+  transition: background-color 0.5s ease, border-color 0.5s ease !important;
 }
 
 .light .bg-gray-700 {
   background-color: #f3f4f6 !important;
+  transition: background-color 0.5s ease !important;
 }
 
 .light .text-white {

@@ -22,6 +22,12 @@ import Hobbies from "./components/Hobbies";
 import SpeakingPublications from "./components/SpeakingPublications";
 import Analytics from "./components/Analytics";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Dynamically import the Clock component with SSR disabled
+const Clock = dynamic(() => import("./components/Clock"), {
+  ssr: false,
+});
 
 interface Blog {
   id: string;
@@ -140,6 +146,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white transition-colors duration-300">
+      {/* clock on the top right */}
+      {/* <Clock /> */}
       <Navbar onScrollTo={scrollToSection} />
 
       {/* Hero Section */}
@@ -299,15 +307,7 @@ export default function Home() {
             >
               View Resume
             </motion.a>
-            <motion.a
-              href="/resume.pdf"
-              download="Debashish_Resume.pdf"
-              className="relative px-8 py-3 border-2 border-purple-500 hover:border-purple-300 rounded-full text-lg font-semibold transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Download Resume
-            </motion.a>
+            
           </motion.div>
         </motion.div>
       </section>
@@ -342,7 +342,7 @@ export default function Home() {
                 Learning are my areas of interest. I'm currently working as a freelancer and
                 building my own projects. I'm also a full-stack developer with a keen eye for
                 design and a love for modern technologies. I specialize in creating dynamic,
-                responsive web applications that provide exceptional user experiences.
+                responsive web applications & mobile applications that provide exceptional user experiences.
               </p>
               <p className="text-gray-300 leading-relaxed">
                 When I'm not coding, you can find me exploring new technologies, contributing
@@ -352,8 +352,8 @@ export default function Home() {
             </div>
             <motion.div
               className="w-64 h-64 rounded-full mx-auto overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600"
-              whileHover={{ scale: 1.5, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 500 }}
+              whileHover={{ scale: 1.2, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 16, mass: 1 }}
             >
               <img
                 src="/profile.png"

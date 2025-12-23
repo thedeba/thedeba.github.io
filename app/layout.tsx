@@ -1,19 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistSans, GeistMono } from 'geist/font';
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Debashish | Software Engineer & Full Stack Developer",
+  metadataBase: new URL('https://debashish.vercel.app'),
+  title: "Debashish | Software Engineer | Full Stack Developer",
   description: "Debashish is a Software Engineer, ML/DL Engineer & Full Stack Developer specializing in building innovative web applications and AI solutions.",
   keywords: ["Software Engineer", "Full Stack Developer", "Machine Learning", "React", "Next.js", "Python", "AI", "Web Development"],
   authors: [{ name: "Debashish" }],
@@ -21,13 +12,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://debashish.dev",
+    url: "https://debashish.vercel.app",
     siteName: "Debashish Portfolio",
-    title: "Debashish | Software Engineer & Full Stack Developer",
+    title: "Debashish | Software Engineer | Full Stack Developer",
     description: "Software Engineer, ML/DL Engineer & Full Stack Developer specializing in building innovative web applications and AI solutions.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/profile.png",
         width: 1200,
         height: 630,
         alt: "Debashish Portfolio",
@@ -36,9 +27,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Debashish | Software Engineer & Full Stack Developer",
+    title: "Debashish | Software Engineer | Full Stack Developer",
     description: "Software Engineer, ML/DL Engineer & Full Stack Developer",
-    images: ["/og-image.png"],
+    images: ["/profile.png"],
     creator: "@debashish",
   },
   robots: {
@@ -53,10 +44,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className={GeistSans.className}>
         {children}
       </body>
     </html>

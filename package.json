@@ -11,6 +11,7 @@
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "framer-motion": "^12.23.26",
+    "geist": "^1.5.1",
     "next": "16.0.10",
     "react": "19.2.1",
     "react-dom": "19.2.1",

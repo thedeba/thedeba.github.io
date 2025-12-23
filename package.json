@@ -2,11 +2,16 @@
   "name": "debashish-portfolio",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://thedeba.github.io/debashish-portfolio",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:gh-pages": "NEXT_PUBLIC_DEPLOY_TARGET=gh-pages next build && next export -o docs",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "predeploy": "npm run build:gh-pages",
+    "deploy": "gh-pages -d docs",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.80",

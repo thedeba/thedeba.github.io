@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "title": "The Future of Web Development",
+    "excerpt": "Exploring emerging trends and technologies shaping the future of web development.",
+    "date": "Dec 14, 2025",
+    "readTime": "5 min read",
+    "content": "Full blog content would go here..."
+  },
+  {
+    "id": "2",
+    "title": "Building Modern UIs with React",
+    "excerpt": "Best practices for creating stunning user interfaces with React and modern CSS.",
+    "date": "Dec 12, 2025",
+    "readTime": "7 min read",
+    "content": "Full blog content would go here..."
+  },
+  {
+    "id": "3",
+    "title": "AI in Software Development",
+    "excerpt": "How artificial intelligence is revolutionizing the way we write and maintain code.",
+    "date": "Dec 10, 2025",
+    "readTime": "6 min read",
+    "content": "Full blog content would go here..."
+  }
+]

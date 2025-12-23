@@ -23,6 +23,7 @@ import SpeakingPublications from "./components/SpeakingPublications";
 import Analytics from "./components/Analytics";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { fetchBlogsClient } from "@/lib/data/dataFetcher";
 
 // Dynamically import the Clock component with SSR disabled
 const Clock = dynamic(() => import("./components/Clock"), {
@@ -56,12 +57,8 @@ export default function Home() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const blogsResponse = await fetch("/api/blogs");
-
-        if (blogsResponse.ok) {
-          const blogsData = await blogsResponse.json();
-          setBlogs(blogsData);
-        }
+        const blogsData = await fetchBlogsClient();
+        setBlogs(blogsData);
       } catch (error) {
         console.error("Error loading data:", error);
       } finally {
@@ -128,6 +125,7 @@ export default function Home() {
   }, []);
 
   const scrollToSection = (section: string) => {
+    console.log('scrollToSection called with:', section);
     const refs: Record<string, React.RefObject<HTMLElement | null>> = {
       about: aboutRef,
       skills: skillsRef,
@@ -136,7 +134,14 @@ export default function Home() {
       blog: blogRef,
       contact: contactRef,
     };
-    refs[section]?.current?.scrollIntoView({ behavior: "smooth" });
+    const element = refs[section]?.current;
+    console.log('Element found:', !!element, 'for section:', section);
+    if (element) {
+      console.log('Scrolling to element:', element);
+      element.scrollIntoView({ behavior: "smooth" });
+    } else {
+      console.error('Element not found for section:', section);
+    }
   };
 
   const handleViewWork = () => {
@@ -372,17 +377,17 @@ export default function Home() {
       <Stats />
 
       {/* Skills Section */}
-      <section ref={skillsRef}>
+      <section ref={skillsRef} id="skills">
         <Skills />
       </section>
 
       {/* Projects Section */}
-      <section ref={projectsRef}>
+      <section ref={projectsRef} id="projects">
         <Projects />
       </section>
 
       {/* Experience Section */}
-      <section ref={experienceRef}>
+      <section ref={experienceRef} id="experience">
         <Experience />
       </section>
 
@@ -528,7 +533,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section ref={contactRef}>
+      <section ref={contactRef} id="contact">
         <ContactForm />
       </section>
 

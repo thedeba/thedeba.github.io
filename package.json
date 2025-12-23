@@ -6,16 +6,18 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:gh-pages": "NEXT_PUBLIC_DEPLOY_TARGET=gh-pages next build && next export -o docs",
+    "build:gh-pages": "NEXT_PUBLIC_DEPLOY_TARGET=gh-pages node scripts/build-static-export.js",
+    "build:vercel": "NEXT_PUBLIC_DEPLOY_TARGET=vercel node scripts/build-vercel.js",
     "start": "next start",
     "lint": "eslint",
     "predeploy": "npm run build:gh-pages",
     "deploy": "gh-pages -d docs",
-    "vercel-build": "next build"
+    "vercel-build": "npm run build:vercel"
   },
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@supabase/auth-helpers-nextjs": "^0.15.0",
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
     "framer-motion": "^12.23.26",
     "geist": "^1.5.1",

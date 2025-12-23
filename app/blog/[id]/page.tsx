@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { fetchBlogsClient } from "@/lib/data/dataFetcher";
 
 interface Blog {
   id: string;
@@ -24,12 +25,9 @@ export default function BlogDetail() {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await fetch("/api/blogs");
-        if (response.ok) {
-          const blogs: Blog[] = await response.json();
-          const foundBlog = blogs.find((b) => b.id === params.id);
-          setBlog(foundBlog || null);
-        }
+        const blogs = await fetchBlogsClient();
+        const foundBlog = blogs.find((b) => b.id === params.id);
+        setBlog(foundBlog || null);
       } catch (error) {
         console.error("Error fetching blog:", error);
       } finally {

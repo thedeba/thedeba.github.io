@@ -110,38 +110,35 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-gray-900/95 backdrop-blur-md"
-          >
-            <div className="px-4 py-4 space-y-3">
-              {navItems.map((item) => (
-                <button
-                  key={item.section}
-                  onClick={() => {
-                    onScrollTo(item.section);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left text-gray-300 hover:text-white py-2 transition-colors"
-                >
-                  {item.label}
-                </button>
-              ))}
-              <a
-                href="/resume.pdf"
-                target="_blank"
-                className="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-full text-sm font-semibold transition-colors"
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-gray-900/95 backdrop-blur-md">
+          <div className="px-4 py-4 space-y-3">
+            {navItems.map((item) => (
+              <button
+                key={item.section}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Mobile menu button clicked:', item.section);
+                  onScrollTo(item.section);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="block w-full text-left text-gray-300 hover:text-white py-2 px-2 transition-colors focus:outline-none focus:bg-gray-800"
               >
-                Resume
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                {item.label}
+              </button>
+            ))}
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              className="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-full text-sm font-semibold transition-colors"
+            >
+              Resume
+            </a>
+          </div>
+        </div>
+      )}
     </motion.nav>
   );
 }

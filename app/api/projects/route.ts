@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { verifyAdminAuth } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 const dataFilePath = path.join(process.cwd(), 'data', 'projects.json');
 
@@ -35,6 +38,12 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  // Verify authentication
+  const isAuthorized = await verifyAdminAuth();
+  if (!isAuthorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const projects = readProjects();
@@ -61,6 +70,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  // Verify authentication
+  const isAuthorized = await verifyAdminAuth();
+  if (!isAuthorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const projects = readProjects();
@@ -90,6 +105,12 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // Verify authentication
+  const isAuthorized = await verifyAdminAuth();
+  if (!isAuthorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

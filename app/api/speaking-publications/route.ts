@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { verifyAdminAuth } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 const dataFilePath = path.join(process.cwd(), 'data/speaking-publications.json');
 
@@ -34,6 +37,12 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  // Verify authentication
+  const isAuthorized = await verifyAdminAuth();
+  if (!isAuthorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const data = await request.json();
     // Validate the data structure

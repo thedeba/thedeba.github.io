@@ -2,16 +2,16 @@
 const isGHPages = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'gh-pages';
 
 const nextConfig = {
-  // Only enable static export for GitHub Pages
-  ...(isGHPages && { output: 'export' }),
-  
   // For GitHub Pages, use unoptimized images and set proper base paths
   ...(isGHPages && {
+    output: 'export',
+    distDir: 'out',
     images: {
       unoptimized: true,
     },
     basePath: '/debashish-portfolio',
     assetPrefix: '/debashish-portfolio/',
+    trailingSlash: true,
   }),
   
   // For Vercel, use default optimized images

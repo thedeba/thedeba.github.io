@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { fetchProjectsClient } from "@/lib/data/dataFetcher";
 
 interface Project {
   id: string;
@@ -24,12 +25,9 @@ export default function Projects() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch("/api/projects");
-        if (response.ok) {
-          const data = await response.json();
-          setProjects(data);
-          setFilteredProjects(data);
-        }
+        const data = await fetchProjectsClient();
+        setProjects(data);
+        setFilteredProjects(data);
       } catch (error) {
         console.error("Error fetching projects:", error);
       } finally {

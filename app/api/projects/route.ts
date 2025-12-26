@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminAuth } from '@/lib/auth';
 import { projectOperations, Project } from '@/lib/supabase-data';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
   try {
     const projects = await projectOperations.getAll();

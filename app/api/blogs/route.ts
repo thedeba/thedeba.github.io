@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminAuth } from '@/lib/auth';
 import { blogOperations, Blog } from '@/lib/supabase-data';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
   try {
     const blogs = await blogOperations.getAll();

@@ -11,7 +11,7 @@ interface Blog {
   title: string;
   excerpt: string;
   date: string;
-  readTime: string;
+  read_time: string;
   content: string;
 }
 
@@ -131,7 +131,7 @@ export default function BlogDetail() {
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
                 <span>{blog.date}</span>
                 <span>•</span>
-                <span>{blog.readTime}</span>
+                <span>{blog.read_time}</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                 {blog.title}

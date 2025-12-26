@@ -35,7 +35,7 @@ interface Blog {
   title: string;
   excerpt: string;
   date: string;
-  readTime: string;
+  read_time: string;
   content: string;
 }
 
@@ -484,7 +484,7 @@ export default function Home() {
                       <div className="flex items-center text-sm text-gray-400 mb-2">
                         <span>{post.date}</span>
                         <span className="mx-2">•</span>
-                        <span>{post.readTime}</span>
+                        <span>{post.read_time}</span>
                       </div>
                       <h3 className="text-xl font-semibold mb-3 group-hover:text-blue-400 transition-colors">
                         {post.title}

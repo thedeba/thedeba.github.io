@@ -1,6 +1,6 @@
 1:"$Sreact.fragment"
-2:I[39751,["/debashish-portfolio/_next/static/chunks/e2b071512977f55c.js","/debashish-portfolio/_next/static/chunks/6362172df6c079ba.js"],"default"]
-3:I[75569,["/debashish-portfolio/_next/static/chunks/e2b071512977f55c.js","/debashish-portfolio/_next/static/chunks/6362172df6c079ba.js"],"default"]
-4:I[12240,["/debashish-portfolio/_next/static/chunks/4cb19cab70d64849.js","/debashish-portfolio/_next/static/chunks/3152fc773d52a4bf.js"],"default"]
-:HL["/debashish-portfolio/_next/static/chunks/5031fa8a07fe5c93.css","style"]
-0:{"buildId":"mwhyV-960p6wLHpvOW9m5","rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/debashish-portfolio/_next/static/chunks/5031fa8a07fe5c93.css","precedence":"next"}]],["$","html",null,{"lang":"en","className":"geistsans_1ae61996-module__PNg7zG__variable geistmono_f060a206-module__kyxaxG__variable","children":["$","body",null,{"className":"geistsans_1ae61996-module__PNg7zG__className","children":["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}],"notFound":[["$","$L4",null,{}],[]]}]}]}]]}],"loading":null,"isPartial":false}
+2:I[39751,["/_next/static/chunks/e2b071512977f55c.js","/_next/static/chunks/6362172df6c079ba.js"],"default"]
+3:I[75569,["/_next/static/chunks/e2b071512977f55c.js","/_next/static/chunks/6362172df6c079ba.js"],"default"]
+4:I[12240,["/_next/static/chunks/4cb19cab70d64849.js","/_next/static/chunks/a94ef177f41fd065.js","/_next/static/chunks/c5ba81b611274571.js"],"default"]
+:HL["/_next/static/chunks/7d17219d0be1a725.css","style"]
+0:{"buildId":"_bKuyToV9gLhWAW5YFhIj","rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/7d17219d0be1a725.css","precedence":"next"}]],["$","html",null,{"lang":"en","className":"geistsans_1ae61996-module__PNg7zG__variable geistmono_f060a206-module__kyxaxG__variable","children":["$","body",null,{"className":"geistsans_1ae61996-module__PNg7zG__className","children":["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}],"notFound":[["$","$L4",null,{}],[]]}]}]}]]}],"loading":null,"isPartial":false}

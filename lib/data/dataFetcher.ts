@@ -9,6 +9,7 @@ interface Blog {
   date: string;
   read_time: string;
   content: string;
+  image?: string;
 }
 
 interface Project {

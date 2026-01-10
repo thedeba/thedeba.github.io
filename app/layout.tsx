@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { GeistSans, GeistMono } from 'geist/font';
 import "./globals.css";
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './contexts/AuthContext';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://debashish.vercel.app'),
@@ -46,7 +48,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className={GeistSans.className}>
-        {children}
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 interface SpeakingEngagement {
   id: number;
@@ -26,6 +27,7 @@ export default function SpeakingPublicationsAdmin() {
   const [publications, setPublications] = useState<Publication[]>([]);
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Form states
   const [speakingForm, setSpeakingForm] = useState<Omit<SpeakingEngagement, 'id'>>({ 
@@ -47,15 +49,36 @@ export default function SpeakingPublicationsAdmin() {
 
   useEffect(() => {
     fetchData();
+    
+    return () => {
+      // Cancel any ongoing requests when component unmounts
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, []);
 
   const fetchData = async () => {
+    // Cancel any previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+    
     try {
-      const response = await fetch('/api/speaking-publications');
+      const response = await fetch('/api/speaking-publications', {
+        signal: abortControllerRef.current.signal
+      });
       const data = await response.json();
       setSpeakingEngagements(data.speakingEngagements || []);
       setPublications(data.publications || []);
     } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
@@ -66,18 +89,31 @@ export default function SpeakingPublicationsAdmin() {
     e.preventDefault();
     setSaveStatus('saving');
     
+    const abortController = new AbortController();
+    
     try {
       const response = await fetch('/api/speaking-publications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ speakingEngagements, publications }),
+        signal: abortController.signal
       });
       
       if (!response.ok) throw new Error('Failed to save');
       
+      const result = await response.json();
+      // Update local state with the data returned from database (which has correct IDs)
+      setSpeakingEngagements(result.data.speakingEngagements);
+      setPublications(result.data.publications);
+      
       setSaveStatus('success');
+      toast.success('Speaking & Publications saved successfully!', { duration: 3000 });
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       console.error('Error saving data:', error);
       setSaveStatus('error');
       setTimeout(() => setSaveStatus('idle'), 3000);

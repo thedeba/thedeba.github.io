@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import toast from 'react-hot-toast';
+import { generateRandomImage } from "@/lib/image-generator";
 
 interface Blog {
   id: string;
@@ -13,6 +15,7 @@ interface Blog {
   date: string;
   readTime: string;
   content: string;
+  image?: string;
 }
 
 interface Project {
@@ -45,24 +48,40 @@ interface Publication {
   link: string;
 }
 
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'unread' | 'read' | 'replied';
+  created_at: string;
+  updated_at: string;
+}
+
 export default function Admin() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'blogs' | 'projects' | 'speaking'>('blogs');
+  const [activeTab, setActiveTab] = useState<'blogs' | 'projects' | 'speaking' | 'messages'>('blogs');
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [speakingEngagements, setSpeakingEngagements] = useState<SpeakingEngagement[]>([]);
   const [publications, setPublications] = useState<Publication[]>([]);
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingItem, setEditingItem] = useState<Blog | Project | SpeakingEngagement | Publication | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<{ id: string; type: 'blog' | 'project' } | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Form states
   const [blogFormData, setBlogFormData] = useState({
     title: '',
     excerpt: '',
     content: '',
-    readTime: '5 min read'
+    readTime: '5 min read',
+    image: ''
   });
 
   const [projectFormData, setProjectFormData] = useState({
@@ -116,15 +135,30 @@ export default function Admin() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      // Cancel any ongoing requests when component unmounts
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [router]);
 
   const loadData = async () => {
+    // Cancel any previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+    
     try {
-      const [blogsResponse, projectsResponse, speakingResponse] = await Promise.all([
-        fetch('/api/blogs'),
-        fetch('/api/projects'),
-        fetch('/api/speaking-publications')
+      const [blogsResponse, projectsResponse, speakingResponse, messagesResponse] = await Promise.all([
+        fetch('/api/blogs', { signal: abortControllerRef.current.signal }),
+        fetch('/api/projects', { signal: abortControllerRef.current.signal }),
+        fetch('/api/speaking-publications', { signal: abortControllerRef.current.signal }),
+        fetch('/api/contact-messages', { signal: abortControllerRef.current.signal })
       ]);
 
       if (blogsResponse.ok) {
@@ -142,7 +176,16 @@ export default function Admin() {
         setSpeakingEngagements(speakingData.speakingEngagements || []);
         setPublications(speakingData.publications || []);
       }
+
+      if (messagesResponse.ok) {
+        const messagesData = await messagesResponse.json();
+        setContactMessages(messagesData);
+      }
     } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       console.error('Error loading data:', error);
     }
   };
@@ -156,6 +199,8 @@ export default function Admin() {
       ...(isEditing && editingItem && { id: editingItem.id }),
     };
 
+    const abortController = new AbortController();
+
     try {
       // Get session token
       const { data: { session } } = await supabase.auth.getSession();
@@ -166,17 +211,22 @@ export default function Admin() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token || ''}`
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: abortController.signal
       });
 
       if (response.ok) {
         loadData();
         resetBlogForm();
-        alert(`Blog ${isEditing ? 'updated' : 'created'} successfully!`);
+        toast.success(`Blog ${isEditing ? 'updated' : 'created'} successfully!`, { duration: 3000 });
       } else {
         alert('Error saving data');
       }
     } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       console.error('Error saving:', error);
       alert('Error saving data');
     }
@@ -192,6 +242,8 @@ export default function Admin() {
       ...(isEditing && editingItem && { id: editingItem.id }),
     };
 
+    const abortController = new AbortController();
+
     try {
       // Get session token
       const { data: { session } } = await supabase.auth.getSession();
@@ -202,17 +254,22 @@ export default function Admin() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token || ''}`
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: abortController.signal
       });
 
       if (response.ok) {
         loadData();
         resetProjectForm();
-        alert(`Project ${isEditing ? 'updated' : 'created'} successfully!`);
+        toast.success(`Project ${isEditing ? 'updated' : 'created'} successfully!`, { duration: 3000 });
       } else {
         alert('Error saving data');
       }
     } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       console.error('Error saving:', error);
       alert('Error saving data');
     }
@@ -229,6 +286,7 @@ export default function Admin() {
         excerpt: blog.excerpt,
         content: blog.content,
         readTime: blog.readTime,
+        image: blog.image || ''
       });
     } else if (activeTab === 'projects') {
       const project = item as Project;
@@ -247,10 +305,17 @@ export default function Admin() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
+  const handleDelete = (id: string) => {
+    const type = activeTab === 'blogs' ? 'blog' : 'project';
+    setDeleteItem({ id, type });
+    setShowDeleteModal(true);
+  };
 
-    const endpoint = activeTab === 'blogs' ? `/api/blogs?id=${id}` : `/api/projects?id=${id}`;
+  const confirmDelete = async () => {
+    if (!deleteItem) return;
+
+    const endpoint = deleteItem.type === 'blog' ? `/api/blogs?id=${deleteItem.id}` : `/api/projects?id=${deleteItem.id}`;
+    const abortController = new AbortController();
 
     try {
       // Get session token
@@ -260,18 +325,26 @@ export default function Admin() {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${session?.access_token || ''}`
-        }
+        },
+        signal: abortController.signal
       });
 
       if (response.ok) {
         loadData();
-        alert('Item deleted successfully!');
+        toast.success(`${deleteItem.type === 'blog' ? 'Blog' : 'Project'} deleted successfully!`, { duration: 3000 });
       } else {
         alert('Error deleting item');
       }
     } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       console.error('Error deleting:', error);
       alert('Error deleting item');
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteItem(null);
     }
   };
 
@@ -280,10 +353,17 @@ export default function Admin() {
       title: '',
       excerpt: '',
       content: '',
-      readTime: '5 min read'
+      readTime: '5 min read',
+      image: ''
     });
     setIsEditing(false);
     setEditingItem(null);
+  };
+
+  const handleGenerateRandomImage = () => {
+    const randomImageUrl = generateRandomImage(800, 400);
+    setBlogFormData({ ...blogFormData, image: randomImageUrl });
+    toast.success('Random image generated!');
   };
 
   const resetProjectForm = () => {
@@ -322,6 +402,8 @@ export default function Admin() {
   };
 
   const handleSpeakingSave = async () => {
+    const abortController = new AbortController();
+
     try {
       // Get session token
       const { data: { session } } = await supabase.auth.getSession();
@@ -333,16 +415,69 @@ export default function Admin() {
           'Authorization': `Bearer ${session?.access_token || ''}`
         },
         body: JSON.stringify({ speakingEngagements, publications }),
+        signal: abortController.signal
       });
       
       if (response.ok) {
-        alert('Speaking & Publications saved successfully!');
+        const result = await response.json();
+        // Update local state with the data returned from database (which has correct IDs)
+        setSpeakingEngagements(result.data.speakingEngagements);
+        setPublications(result.data.publications);
+        toast.success('Speaking & Publications saved successfully!', { duration: 3000 });
       } else {
         alert('Error saving data');
       }
     } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       console.error('Error saving:', error);
       alert('Error saving data');
+    }
+  };
+
+  const updateMessageStatus = async (messageId: string, status: 'unread' | 'read' | 'replied') => {
+    try {
+      const response = await fetch('/api/contact-messages', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: messageId, status }),
+      });
+
+      if (response.ok) {
+        loadData(); // Refresh the messages list
+        toast.success(`Message marked as ${status}!`, { duration: 3000 });
+      } else {
+        alert('Error updating message status');
+      }
+    } catch (error) {
+      console.error('Error updating message:', error);
+      alert('Error updating message status');
+    }
+  };
+
+  const deleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/contact-messages?id=${messageId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        loadData(); // Refresh the messages list
+        toast.success('Message deleted successfully!', { duration: 3000 });
+      } else {
+        alert('Error deleting message');
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      alert('Error deleting message');
     }
   };
 
@@ -433,6 +568,18 @@ export default function Admin() {
           >
             Speaking & Publications
           </button>
+          <button
+            onClick={() => {
+              setActiveTab('messages');
+            }}
+            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+              activeTab === 'messages'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Messages ({contactMessages.filter(m => m.status === 'unread').length})
+          </button>
         </div>
         
 
@@ -444,7 +591,8 @@ export default function Admin() {
             className="bg-gray-800 rounded-lg p-6"
           >
             <h2 className="text-2xl font-bold mb-6">
-              {activeTab === 'speaking' ? 'Speaking & Publications Management' : 
+              {activeTab === 'messages' ? 'Contact Messages' :
+               activeTab === 'speaking' ? 'Speaking & Publications Management' : 
                isEditing ? 'Edit' : 'Add'} {activeTab === 'blogs' ? 'Blog' : 
                activeTab === 'projects' ? 'Project' : ''}
             </h2>
@@ -636,6 +784,41 @@ export default function Admin() {
                     className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Blog Image</label>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={blogFormData.image}
+                        onChange={(e) => setBlogFormData({ ...blogFormData, image: e.target.value })}
+                        className="flex-1 px-3 py-2 bg-gray-700 rounded-lg text-white"
+                        placeholder="Enter image URL or generate random"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleGenerateRandomImage}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-colors"
+                      >
+                        Generate Random
+                      </button>
+                    </div>
+                    {blogFormData.image && (
+                      <div className="mt-3">
+                        <p className="text-sm text-gray-400 mb-2">Image Preview:</p>
+                        <img
+                          src={blogFormData.image}
+                          alt="Blog preview"
+                          className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-600"
+                          onError={(e) => {
+                            e.currentTarget.src = '';
+                            toast.error('Failed to load image preview');
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="flex gap-4">
                   <button
                     type="submit"
@@ -654,7 +837,7 @@ export default function Admin() {
                   )}
                 </div>
               </form>
-            ) : (
+            ) : activeTab === 'projects' ? (
               <form onSubmit={handleProjectSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Title</label>
@@ -755,7 +938,35 @@ export default function Admin() {
                   )}
                 </div>
               </form>
-            )}
+            ) : activeTab === 'messages' ? (
+              <div className="text-center py-12">
+                <div className="mb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Contact Messages</h3>
+                  <p className="text-gray-400">
+                    View and manage messages from your contact form
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="bg-gray-700 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-blue-400">{contactMessages.length}</div>
+                    <div className="text-sm text-gray-400">Total Messages</div>
+                  </div>
+                  <div className="bg-gray-700 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-yellow-400">{contactMessages.filter(m => m.status === 'unread').length}</div>
+                    <div className="text-sm text-gray-400">Unread</div>
+                  </div>
+                  <div className="bg-gray-700 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-green-400">{contactMessages.filter(m => m.status === 'read').length}</div>
+                    <div className="text-sm text-gray-400">Read</div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </motion.div>
 
           {/* List */}
@@ -765,9 +976,11 @@ export default function Admin() {
             className="bg-gray-800 rounded-lg p-6"
           >
             <h2 className="text-2xl font-bold mb-6">
-              {activeTab === 'speaking' ? 'Current Speaking & Publications' :
+              {activeTab === 'messages' ? 'Contact Messages' :
+               activeTab === 'speaking' ? 'Current Speaking & Publications' :
                activeTab === 'blogs' ? 'Blog Posts' : 'Projects'} 
-              ({activeTab === 'speaking' ? `${speakingEngagements.length + publications.length} items` :
+              ({activeTab === 'messages' ? contactMessages.length :
+                activeTab === 'speaking' ? `${speakingEngagements.length + publications.length} items` :
                 activeTab === 'blogs' ? blogs.length : projects.length})
             </h2>
 
@@ -818,7 +1031,7 @@ export default function Admin() {
                     </div>
                   </div>
                 ))
-              ) : (
+              ) : activeTab === 'projects' ? (
                 projects.map((item) => (
                   <div key={item.id} className="bg-gray-700 rounded-lg p-4">
                     <h3 className="font-semibold mb-2">{item.title}</h3>
@@ -839,10 +1052,98 @@ export default function Admin() {
                     </div>
                   </div>
                 ))
-              )}
+              ) : activeTab === 'messages' ? (
+                contactMessages.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-400">No messages yet.</div>
+                  </div>
+                ) : (
+                  contactMessages.map((message) => (
+                    <div key={message.id} className={`bg-gray-700 rounded-lg p-4 ${message.status === 'unread' ? 'border-l-4 border-yellow-400' : ''}`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold">{message.name}</h3>
+                            <span className={`px-2 py-1 text-xs rounded ${
+                              message.status === 'unread' ? 'bg-yellow-600 text-black' :
+                              message.status === 'read' ? 'bg-blue-600 text-white' :
+                              'bg-green-600 text-white'
+                            }`}>
+                              {message.status}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-400 mb-1">{message.email}</p>
+                          <p className="text-sm font-medium text-blue-300 mb-2">{message.subject}</p>
+                          <p className="text-gray-300 text-sm">{message.message}</p>
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          {message.status === 'unread' && (
+                            <button
+                              onClick={() => updateMessageStatus(message.id, 'read')}
+                              className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-medium transition-colors"
+                            >
+                              Mark as Read
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteMessage(message.id)}
+                            className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs font-medium transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        {new Date(message.created_at).toLocaleString()}
+                      </div>
+                    </div>
+                  ))
+                )
+              ) : null}
             </div>
           </motion.div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4"
+            >
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                  <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-white mb-2">Delete {deleteItem?.type === 'blog' ? 'Blog' : 'Project'}</h3>
+                <p className="text-gray-300 mb-6">
+                  Are you sure you want to delete this {deleteItem?.type}? This action cannot be undone.
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setDeleteItem(null);
+                    }}
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmDelete}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );

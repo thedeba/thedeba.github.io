@@ -19,6 +19,7 @@ interface Blog {
   date: string;
   readTime: string;
   content: string;
+  image?: string;
 }
 
 interface Project {

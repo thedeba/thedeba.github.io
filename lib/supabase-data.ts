@@ -8,6 +8,7 @@ export interface Blog {
   content: string;
   date: string;
   read_time: string;
+  image?: string;
 }
 
 // Project types
@@ -41,6 +42,18 @@ export interface Publication {
   date: string;
   authors: string;
   link: string;
+}
+
+// Contact message types
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'unread' | 'read' | 'replied';
+  created_at: string;
+  updated_at: string;
 }
 
 // Blog operations
@@ -110,7 +123,8 @@ export const projectOperations = {
     const { data, error } = await supabase
       .from('projects')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('featured', { ascending: false }) // Featured projects first
+      .order('created_at', { ascending: false }); // Then by newest
     
     if (error) throw error;
     return data || [];
@@ -299,10 +313,13 @@ export const speakingPublicationsOperations = {
     await supabase.from('speaking_engagements').delete().neq('id', -1);
     await supabase.from('publications').delete().neq('id', -1);
     
-    // Insert new data
+    // Insert new data without IDs (let database auto-generate)
+    const speakingData = data.speakingEngagements.map(({ id, ...rest }) => rest);
+    const publicationsData = data.publications.map(({ id, ...rest }) => rest);
+    
     const [newSpeaking, newPublications] = await Promise.all([
-      supabase.from('speaking_engagements').insert(data.speakingEngagements).select(),
-      supabase.from('publications').insert(data.publications).select()
+      supabase.from('speaking_engagements').insert(speakingData).select(),
+      supabase.from('publications').insert(publicationsData).select()
     ]);
     
     if (newSpeaking.error) throw newSpeaking.error;
@@ -312,5 +329,76 @@ export const speakingPublicationsOperations = {
       speakingEngagements: newSpeaking.data || [],
       publications: newPublications.data || []
     };
+  }
+};
+
+// Contact message operations
+export const contactMessageOperations = {
+  async getAll(): Promise<ContactMessage[]> {
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getById(id: string): Promise<ContactMessage | null> {
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async create(message: Omit<ContactMessage, 'id' | 'created_at' | 'updated_at'>): Promise<ContactMessage> {
+    const newMessage = {
+      ...message,
+      id: Date.now().toString(),
+    };
+    
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .insert(newMessage)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: Partial<ContactMessage>): Promise<ContactMessage> {
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('contact_messages')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+  },
+
+  async getUnreadCount(): Promise<number> {
+    const { data, error, count } = await supabase
+      .from('contact_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'unread');
+    
+    if (error) throw error;
+    return count || 0;
   }
 };

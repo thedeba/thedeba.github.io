@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../contexts/AuthContext";
 
 interface NavbarProps {
   onScrollTo: (section: string) => void;
@@ -10,6 +11,7 @@ interface NavbarProps {
 export default function Navbar({ onScrollTo }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,6 +78,16 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
             >
               Resume
             </motion.a>
+            {isAdmin && (
+              <motion.a
+                href="/admin"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full text-sm font-semibold transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Admin
+              </motion.a>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -136,6 +148,14 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
             >
               Resume
             </a>
+            {isAdmin && (
+              <a
+                href="/admin"
+                className="block w-full text-center px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full text-sm font-semibold transition-colors"
+              >
+                Admin
+              </a>
+            )}
           </div>
         </div>
       )}

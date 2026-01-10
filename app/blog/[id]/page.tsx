@@ -13,6 +13,7 @@ interface Blog {
   date: string;
   read_time: string;
   content: string;
+  image?: string;
 }
 
 export default function BlogDetail() {
@@ -142,13 +143,27 @@ export default function BlogDetail() {
             </div>
 
             {/* Featured Image */}
-            <div className="w-full h-64 md:h-96 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl mb-10 overflow-hidden">
-              <img
-                src="/file.svg"
-                alt={blog.title}
-                className="w-full h-full object-cover opacity-50"
-              />
-            </div>
+            {blog.image ? (
+              <div className="w-full h-64 md:h-96 rounded-xl mb-10 overflow-hidden">
+                <img
+                  src={blog.image}
+                  alt={blog.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = '/file.svg';
+                    e.currentTarget.style.opacity = '0.5';
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="w-full h-64 md:h-96 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl mb-10 overflow-hidden">
+                <img
+                  src="/file.svg"
+                  alt={blog.title}
+                  className="w-full h-full object-cover opacity-50"
+                />
+              </div>
+            )}
 
             {/* Blog Content */}
             <div className="prose prose-lg prose-invert max-w-none">

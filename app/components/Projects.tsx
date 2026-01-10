@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { fetchProjectsClient } from "@/lib/data/dataFetcher";
+import ProjectSkeleton from "./ProjectSkeleton";
 
 interface Project {
   id: string;
@@ -52,8 +53,28 @@ export default function Projects() {
     return (
       <section id="projects" className="py-20 px-4 bg-gray-900">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center">
-            <div className="inline-block w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          {/* Header Skeleton */}
+          <div className="text-center mb-12">
+            <div className="h-12 bg-gray-700 rounded-lg w-64 mx-auto mb-4"></div>
+            <div className="h-6 bg-gray-700 rounded-lg w-96 mx-auto"></div>
+          </div>
+
+          {/* Filter Skeleton */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <div className="h-8 bg-gray-700 rounded-full w-16"></div>
+            <div className="h-8 bg-gray-700 rounded-full w-20"></div>
+            <div className="h-8 bg-gray-700 rounded-full w-16"></div>
+            <div className="h-8 bg-gray-700 rounded-full w-24"></div>
+          </div>
+
+          {/* Project Cards Skeleton */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <ProjectSkeleton />
+            <ProjectSkeleton />
+            <ProjectSkeleton />
+            <ProjectSkeleton />
+            <ProjectSkeleton />
+            <ProjectSkeleton />
           </div>
         </div>
       </section>

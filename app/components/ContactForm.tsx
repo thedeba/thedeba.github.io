@@ -17,21 +17,23 @@ export default function ContactForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission (replace with actual API call)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // For now, open mailto with the form data
-      const mailtoLink = `mailto:thedeba@icloud.com?subject=${encodeURIComponent(
-        formData.subject
-      )}&body=${encodeURIComponent(
-        `Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}`
-      )}`;
-      window.open(mailtoLink, "_blank");
-      
+      const response = await fetch('/api/contact-messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
       setSubmitStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
-    } catch {
+    } catch (error) {
+      console.error('Error sending message:', error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

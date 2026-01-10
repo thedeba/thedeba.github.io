@@ -37,6 +37,7 @@ interface Blog {
   date: string;
   read_time: string;
   content: string;
+  image?: string;
 }
 
 export default function Home() {
@@ -479,7 +480,18 @@ export default function Home() {
                       whileHover={{ y: -5 }}
                     >
                       <div className="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-600 rounded-lg mb-4 group-hover:scale-105 transition-transform overflow-hidden">
-                        <img src="/file.svg" className="w-full h-full object-cover" />
+                        {post.image ? (
+                          <img 
+                            src={post.image} 
+                            alt={post.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/file.svg';
+                            }}
+                          />
+                        ) : (
+                          <img src="/file.svg" className="w-full h-full object-cover" />
+                        )}
                       </div>
                       <div className="flex items-center text-sm text-gray-400 mb-2">
                         <span>{post.date}</span>

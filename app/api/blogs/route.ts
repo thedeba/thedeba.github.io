@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
         month: 'short',
         day: 'numeric'
       }),
-      read_time: body.readTime || '5 min read'
+      read_time: body.readTime || '5 min read',
+      image: body.image || null
     });
 
     return NextResponse.json(newBlog, { status: 201 });
@@ -53,7 +54,8 @@ export async function PUT(request: NextRequest) {
       title: body.title,
       excerpt: body.excerpt,
       content: body.content,
-      read_time: body.readTime
+      read_time: body.readTime,
+      image: body.image || null
     });
 
     return NextResponse.json(updatedBlog);

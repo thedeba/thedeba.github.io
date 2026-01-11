@@ -692,47 +692,49 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header with logout */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center mb-8"
+          className="mb-6 lg:mb-8"
         >
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Admin Panel</h1>
-            <p className="text-gray-300">Manage your blogs and projects</p>
-            {user && (
-              <p className="text-sm text-gray-400 mt-1">
-                Logged in as: {user.email}
-              </p>
-            )}
-          </div>
-          <div className="flex gap-4">
-            <Link
-              href="/"
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors"
-            >
-              View Site
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors"
-            >
-              Logout
-            </button>
+          <div className="flex justify-between items-start gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">Admin Panel</h1>
+              <p className="text-gray-300 text-sm sm:text-base">Manage your blogs and projects</p>
+              {user && (
+                <p className="text-xs sm:text-sm text-gray-400 mt-1">
+                  Logged in as: {user.email}
+                </p>
+              )}
+            </div>
+            <div className="flex gap-2 sm:gap-4">
+              <Link
+                href="/"
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors text-center"
+              >
+                View Site
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex mb-8">
+        <div className="flex flex-wrap gap-2 mb-6 lg:mb-8">
           <button
             onClick={() => {
               setActiveTab('blogs');
               resetBlogForm();
             }}
-            className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
               activeTab === 'blogs'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -745,7 +747,7 @@ export default function Admin() {
               setActiveTab('projects');
               resetProjectForm();
             }}
-            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
               activeTab === 'projects'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -757,19 +759,20 @@ export default function Admin() {
             onClick={() => {
               setActiveTab('speaking');
             }}
-            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
               activeTab === 'speaking'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             }`}
           >
-            Speaking & Publications
+            <span className="hidden sm:inline">Speaking & Publications</span>
+            <span className="sm:hidden">Speaking</span>
           </button>
           <button
             onClick={() => {
               setActiveTab('messages');
             }}
-            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
               activeTab === 'messages'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -782,7 +785,7 @@ export default function Admin() {
               setActiveTab('stats');
               resetStatForm();
             }}
-            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
               activeTab === 'stats'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -795,7 +798,7 @@ export default function Admin() {
               setActiveTab('experiences');
               resetExperienceForm();
             }}
-            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
               activeTab === 'experiences'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -806,7 +809,7 @@ export default function Admin() {
         </div>
         
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -829,37 +832,37 @@ export default function Admin() {
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <h3 className="text-xl font-semibold mb-4">Speaking Engagements</h3>
                   
-                  <div className="grid md:grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                     <input
                       type="text"
                       placeholder="Title"
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={speakingFormData.title}
                       onChange={(e) => setSpeakingFormData({...speakingFormData, title: e.target.value})}
                     />
                     <input
                       type="text"
                       placeholder="Event"
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={speakingFormData.event}
                       onChange={(e) => setSpeakingFormData({...speakingFormData, event: e.target.value})}
                     />
                     <input
                       type="text"
                       placeholder="Date (e.g., January 2024)"
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={speakingFormData.date}
                       onChange={(e) => setSpeakingFormData({...speakingFormData, date: e.target.value})}
                     />
                     <input
                       type="text"
                       placeholder="Location"
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={speakingFormData.location}
                       onChange={(e) => setSpeakingFormData({...speakingFormData, location: e.target.value})}
                     />
                     <select
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={speakingFormData.type}
                       onChange={(e) => setSpeakingFormData({...speakingFormData, type: e.target.value as any})}
                     >
@@ -899,46 +902,46 @@ export default function Admin() {
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <h3 className="text-xl font-semibold mb-4">Publications</h3>
                   
-                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <input
                       type="text"
                       placeholder="Title"
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={publicationFormData.title}
                       onChange={(e) => setPublicationFormData({...publicationFormData, title: e.target.value})}
                     />
                     <input
                       type="text"
                       placeholder="Journal/Conference"
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={publicationFormData.journal}
                       onChange={(e) => setPublicationFormData({...publicationFormData, journal: e.target.value})}
                     />
                     <input
                       type="text"
                       placeholder="Date (e.g., 2024)"
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={publicationFormData.date}
                       onChange={(e) => setPublicationFormData({...publicationFormData, date: e.target.value})}
                     />
                     <input
                       type="text"
                       placeholder="Authors"
-                      className="p-2 bg-gray-600 rounded"
+                      className="p-2 bg-gray-600 rounded text-sm"
                       value={publicationFormData.authors}
                       onChange={(e) => setPublicationFormData({...publicationFormData, authors: e.target.value})}
                     />
                     <input
                       type="url"
                       placeholder="Link to publication"
-                      className="p-2 bg-gray-600 rounded md:col-span-2"
+                      className="p-2 bg-gray-600 rounded text-sm sm:col-span-2"
                       value={publicationFormData.link}
                       onChange={(e) => setPublicationFormData({...publicationFormData, link: e.target.value})}
                     />
                     <button
                       type="button"
                       onClick={addPublication}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium md:col-span-2"
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium text-sm sm:col-span-2"
                     >
                       Add Publication
                     </button>
@@ -1013,18 +1016,18 @@ export default function Admin() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Blog Image</label>
                   <div className="space-y-3">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={blogFormData.image}
                         onChange={(e) => setBlogFormData({ ...blogFormData, image: e.target.value })}
-                        className="flex-1 px-3 py-2 bg-gray-700 rounded-lg text-white"
+                        className="flex-1 px-3 py-2 bg-gray-700 rounded-lg text-white text-sm"
                         placeholder="Enter image URL or generate random"
                       />
                       <button
                         type="button"
                         onClick={handleGenerateRandomImage}
-                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-colors"
+                        className="px-3 sm:px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-colors text-sm"
                       >
                         Generate Random
                       </button>
@@ -1035,7 +1038,7 @@ export default function Admin() {
                         <img
                           src={blogFormData.image}
                           alt="Blog preview"
-                          className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-600"
+                          className="w-full max-w-full sm:max-w-md h-48 object-cover rounded-lg border border-gray-600"
                           onError={(e) => {
                             e.currentTarget.src = '';
                             toast.error('Failed to load image preview');
@@ -1045,7 +1048,7 @@ export default function Admin() {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <button
                     type="submit"
                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
@@ -1146,7 +1149,7 @@ export default function Admin() {
                   />
                   <label htmlFor="featured" className="text-sm font-medium">Featured Project</label>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <button
                     type="submit"
                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
@@ -1198,7 +1201,7 @@ export default function Admin() {
                     placeholder="e.g., +, %, years"
                   />
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <button
                     type="submit"
                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
@@ -1282,7 +1285,7 @@ export default function Admin() {
                     placeholder="React, Node.js, Python"
                   />
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <button
                     type="submit"
                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
@@ -1313,7 +1316,7 @@ export default function Admin() {
                     View and manage messages from your contact form
                   </p>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                   <div className="bg-gray-700 rounded-lg p-4">
                     <div className="text-2xl font-bold text-blue-400">{contactMessages.length}</div>
                     <div className="text-sm text-gray-400">Total Messages</div>
@@ -1341,11 +1344,13 @@ export default function Admin() {
               {activeTab === 'messages' ? 'Contact Messages' :
                activeTab === 'speaking' ? 'Current Speaking & Publications' :
                activeTab === 'stats' ? 'Stats' :
-               activeTab === 'blogs' ? 'Blog Posts' : 'Projects'} 
+               activeTab === 'blogs' ? 'Blog Posts' : 
+               activeTab === 'experiences' ? 'Experiences' : 'Projects'} 
               ({activeTab === 'messages' ? contactMessages.length :
                 activeTab === 'speaking' ? `${speakingEngagements.length + publications.length} items` :
                 activeTab === 'stats' ? stats.length :
-                activeTab === 'blogs' ? blogs.length : projects.length})
+                activeTab === 'blogs' ? blogs.length : 
+                activeTab === 'experiences' ? experiences.length : projects.length})
             </h2>
 
             <div className="space-y-4 max-h-[500px] overflow-y-auto">
@@ -1379,7 +1384,7 @@ export default function Admin() {
                   <div key={item.id} className="bg-gray-700 rounded-lg p-4">
                     <h3 className="font-semibold mb-2">{item.title}</h3>
                     <p className="text-sm text-gray-300 mb-3">{item.excerpt}</p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <button
                         onClick={() => handleEdit(item)}
                         className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm font-medium transition-colors"
@@ -1400,7 +1405,7 @@ export default function Admin() {
                   <div key={item.id} className="bg-gray-700 rounded-lg p-4">
                     <h3 className="font-semibold mb-2">{item.title}</h3>
                     <p className="text-sm text-gray-300 mb-3">{item.description}</p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <button
                         onClick={() => handleEdit(item)}
                         className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm font-medium transition-colors"
@@ -1426,7 +1431,7 @@ export default function Admin() {
                           {item.value}{item.suffix}
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           onClick={() => handleEdit(item)}
                           className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm font-medium transition-colors"
@@ -1456,7 +1461,7 @@ export default function Admin() {
                         }`}>
                           {item.type === 'work' ? '💼 Work' : '📖 Education'}
                         </span>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <button
                             onClick={() => handleEdit(item)}
                             className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm font-medium transition-colors"
@@ -1514,7 +1519,7 @@ export default function Admin() {
                           <p className="text-sm font-medium text-blue-300 mb-2">{message.subject}</p>
                           <p className="text-gray-300 text-sm">{message.message}</p>
                         </div>
-                        <div className="flex gap-2 ml-4">
+                        <div className="flex flex-col sm:flex-row gap-2 ml-0 sm:ml-4 mt-2 sm:mt-0">
                           {message.status === 'unread' && (
                             <button
                               onClick={() => updateMessageStatus(message.id, 'read')}
@@ -1549,7 +1554,7 @@ export default function Admin() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4"
+              className="bg-gray-800 rounded-lg p-4 sm:p-6 max-w-md w-full mx-4"
             >
               <div className="text-center">
                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -1561,7 +1566,7 @@ export default function Admin() {
                 <p className="text-gray-300 mb-6">
                   Are you sure you want to delete this {deleteItem?.type}? This action cannot be undone.
                 </p>
-                <div className="flex gap-3 justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
                     onClick={() => {
                       setShowDeleteModal(false);

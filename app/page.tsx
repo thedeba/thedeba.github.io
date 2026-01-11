@@ -227,49 +227,45 @@ export default function Home() {
                   style={{
                     display: "inline-block",
                     backgroundImage: `linear-gradient(135deg, 
-                      hsl(${200 + index * 20}, 100%, 60%), 
-                      hsl(${280 + index * 20}, 100%, 65%), 
-                      hsl(${340 + index * 20}, 100%, 70%))`,
-                    backgroundSize: "300% 300%",
+                      hsl(${280 + index * 15}, 100%, 70%), 
+                      hsl(${320 + index * 15}, 100%, 75%), 
+                      hsl(${200 + index * 15}, 100%, 65%),
+                      hsl(${160 + index * 15}, 100%, 60%))`,
+                    backgroundSize: "400% 400%",
                     backgroundPosition: "0% 0%",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
                     textShadow: `
-                      0 1px 0 #ccc,
-                      0 2px 0 #c9c9c9,
-                      0 3px 0 #bbb,
-                      0 4px 0 #b9b9b9,
-                      0 5px 0 #aaa,
-                      0 6px 1px rgba(0,0,0,.1),
-                      0 0 5px rgba(0,0,0,.1),
-                      0 1px 3px rgba(0,0,0,.3),
-                      0 3px 5px rgba(0,0,0,.2),
-                      0 5px 10px rgba(0,0,0,.25),
-                      0 10px 10px rgba(0,0,0,.2),
-                      0 20px 20px rgba(0,0,0,.15)`,
+                      0 0 20px rgba(168, 85, 247, 0.5),
+                      0 0 40px rgba(236, 72, 153, 0.3),
+                      0 0 60px rgba(59, 130, 246, 0.2),
+                      0 2px 4px rgba(0,0,0,0.1)`,
                     transformStyle: "preserve-3d",
+                    filter: "brightness(1.2) saturate(1.3)",
                   }}
                   animate={{
-                    y: [0, -12, 0],
-                    scale: [1, 0.95, 1.05, 1],
-                    rotateZ: [0, -10, 10, 0],
-                    opacity: [0.7, 1, 0.7],
-                    backgroundPosition: ["0% 0%", "25% 25%", "50% 50%", "75% 75%", "100% 100%", "75% 75%", "50% 50%", "25% 25%", "0% 0%"],
+                    y: [0, -8, 0],
+                    scale: [1, 1.1, 0.95, 1],
+                    rotateZ: [0, -5, 5, 0],
+                    opacity: [0.8, 1, 0.9],
+                    backgroundPosition: ["0% 0%", "50% 100%", "100% 50%", "50% 0%", "0% 0%"],
+                    filter: ["brightness(1.2) saturate(1.3)", "brightness(1.4) saturate(1.5)", "brightness(1.2) saturate(1.3)"],
                   }}
                   transition={{
-                    duration: 3,
+                    duration: 4,
                     repeat: Infinity,
-                    delay: index * 0.3,
-                    ease: "easeInOut",
+                    delay: index * 0.2,
+                    ease: [0.4, 0, 0.2, 1],
                   }}
                   whileHover={{
-                    scale: 1.2,
-                    rotateZ: 15,
-                    y: -8,
+                    scale: 1.3,
+                    rotateZ: 20,
+                    y: -10,
                     opacity: 1,
+                    filter: "brightness(1.5) saturate(1.8) drop-shadow(0 0 30px rgba(168, 85, 247, 0.8))",
                     transition: { 
-                      duration: 0.4,
+                      duration: 0.3,
                       ease: "easeOut"
                     }
                   }}
@@ -280,18 +276,20 @@ export default function Home() {
             </motion.h1>
             {/* Glowing effect behind name */}
             <motion.div
-              className="absolute inset-0 blur-2xl opacity-30"
+              className="absolute inset-0 blur-3xl opacity-40"
               style={{
-                background: "linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6)",
+                background: "linear-gradient(135deg, #a855f7, #ec4899, #3b82f6, #10b981, #f59e0b, #ef4444)",
+                backgroundSize: "300% 300%",
               }}
               animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.3, 0.5, 0.3],
+                scale: [1, 1.2, 1],
+                opacity: [0.4, 0.6, 0.4],
+                backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
               }}
               transition={{
-                duration: 3,
+                duration: 5,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: [0.4, 0, 0.2, 1],
               }}
             />
           </motion.div>

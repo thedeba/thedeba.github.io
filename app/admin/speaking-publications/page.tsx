@@ -145,45 +145,45 @@ export default function SpeakingPublicationsAdmin() {
   if (loading) return <div className="p-8">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Speaking & Publications Management</h1>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 lg:mb-8">Speaking & Publications Management</h1>
       
       <form onSubmit={handleSave} className="space-y-8">
         {/* Speaking Engagements Section */}
         <div className="bg-gray-800 p-6 rounded-lg">
           <h2 className="text-2xl font-semibold mb-6">Speaking Engagements</h2>
           
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <input
               type="text"
               placeholder="Title"
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={speakingForm.title}
               onChange={(e) => setSpeakingForm({...speakingForm, title: e.target.value})}
             />
             <input
               type="text"
               placeholder="Event"
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={speakingForm.event}
               onChange={(e) => setSpeakingForm({...speakingForm, event: e.target.value})}
             />
             <input
               type="text"
               placeholder="Date (e.g., January 2024)"
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={speakingForm.date}
               onChange={(e) => setSpeakingForm({...speakingForm, date: e.target.value})}
             />
             <input
               type="text"
               placeholder="Location"
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={speakingForm.location}
               onChange={(e) => setSpeakingForm({...speakingForm, location: e.target.value})}
             />
             <select
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={speakingForm.type}
               onChange={(e) => setSpeakingForm({...speakingForm, type: e.target.value as any})}
             >
@@ -202,7 +202,7 @@ export default function SpeakingPublicationsAdmin() {
 
           <div className="space-y-4">
             {speakingEngagements.map((item) => (
-              <div key={item.id} className="flex justify-between items-center p-3 bg-gray-700 rounded">
+              <div key={item.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-gray-700 rounded">
                 <div>
                   <h4 className="font-medium">{item.title}</h4>
                   <p className="text-sm text-gray-300">{item.event} • {item.date}</p>
@@ -223,46 +223,46 @@ export default function SpeakingPublicationsAdmin() {
         <div className="bg-gray-800 p-6 rounded-lg">
           <h2 className="text-2xl font-semibold mb-6">Publications</h2>
           
-          <div className="grid md:grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <input
               type="text"
               placeholder="Title"
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={publicationForm.title}
               onChange={(e) => setPublicationForm({...publicationForm, title: e.target.value})}
             />
             <input
               type="text"
               placeholder="Journal/Conference"
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={publicationForm.journal}
               onChange={(e) => setPublicationForm({...publicationForm, journal: e.target.value})}
             />
             <input
               type="text"
               placeholder="Date (e.g., 2024)"
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={publicationForm.date}
               onChange={(e) => setPublicationForm({...publicationForm, date: e.target.value})}
             />
             <input
               type="text"
               placeholder="Authors"
-              className="p-2 bg-gray-700 rounded"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm"
               value={publicationForm.authors}
               onChange={(e) => setPublicationForm({...publicationForm, authors: e.target.value})}
             />
             <input
               type="url"
               placeholder="Link to publication"
-              className="p-2 bg-gray-700 rounded md:col-span-2"
+              className="p-2 sm:p-3 bg-gray-700 rounded text-sm sm:col-span-2"
               value={publicationForm.link}
               onChange={(e) => setPublicationForm({...publicationForm, link: e.target.value})}
             />
             <button
               type="button"
               onClick={addPublication}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium md:col-span-2"
+              className="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium text-sm sm:col-span-2"
             >
               Add Publication
             </button>
@@ -270,7 +270,7 @@ export default function SpeakingPublicationsAdmin() {
 
           <div className="space-y-4">
             {publications.map((item) => (
-              <div key={item.id} className="flex justify-between items-center p-3 bg-gray-700 rounded">
+              <div key={item.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-gray-700 rounded">
                 <div>
                   <h4 className="font-medium">{item.title}</h4>
                   <p className="text-sm text-gray-300">{item.journal} • {item.date}</p>
@@ -287,7 +287,7 @@ export default function SpeakingPublicationsAdmin() {
           </div>
         </div>
 
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>
             {saveStatus === 'saving' && <span className="text-yellow-400">Saving...</span>}
             {saveStatus === 'success' && <span className="text-green-400">Saved successfully!</span>}

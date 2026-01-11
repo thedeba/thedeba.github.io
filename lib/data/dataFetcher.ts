@@ -47,6 +47,16 @@ interface SpeakingPublicationsData {
   publications: Publication[];
 }
 
+interface Experience {
+  id: number;
+  type: 'work' | 'education';
+  title: string;
+  company: string;
+  period: string;
+  description: string;
+  skills: string[];
+}
+
 // Universal data fetchers - Client-side only
 export async function fetchBlogs(): Promise<Blog[]> {
   try {
@@ -78,6 +88,17 @@ export async function fetchSpeakingPublications(): Promise<SpeakingPublicationsD
   } catch (error) {
     console.error('Error fetching speaking publications:', error);
     return { speakingEngagements: [], publications: [] };
+  }
+}
+
+export async function fetchExperiences(): Promise<Experience[]> {
+  try {
+    const response = await fetch('/api/experiences');
+    if (!response.ok) throw new Error('Failed to fetch experiences');
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching experiences:', error);
+    return [];
   }
 }
 
@@ -120,5 +141,16 @@ export async function fetchSpeakingPublicationsClient(): Promise<SpeakingPublica
   } catch (error) {
     console.error('Error fetching speaking publications:', error);
     return { speakingEngagements: [], publications: [] };
+  }
+}
+
+export async function fetchExperiencesClient(): Promise<Experience[]> {
+  try {
+    const response = await fetch('/api/experiences');
+    if (!response.ok) throw new Error('Failed to fetch experiences');
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching experiences:', error);
+    return [];
   }
 }

@@ -24,3 +24,9 @@ INSERT INTO speaking_engagements (title, event, date, location, type) VALUES
 INSERT INTO publications (title, journal, date, authors, link) VALUES 
 ('Efficient Neural Network Architectures for Edge Devices', 'Journal of Machine Learning Research', '2024', 'Debashish, et al.', 'https://example.com/paper1'),
 ('Real-time Data Processing with React and WebSockets', 'Web Development Quarterly', '2023', 'Debashish', 'https://example.com/paper2');
+
+-- Insert Experiences
+INSERT INTO experiences (title, company, period, description, skills) VALUES 
+('Software Engineer', 'Tech Company', '2024 - Present', 'Description of experience 1', ARRAY['Skill 1', 'Skill 2', 'Skill 3']),
+('Software Engineer', 'Tech Company', '2024 - Present', 'Description of experience 2', ARRAY['Skill 1', 'Skill 2', 'Skill 3']);
+

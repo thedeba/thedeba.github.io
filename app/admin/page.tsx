@@ -59,20 +59,39 @@ interface ContactMessage {
   updated_at: string;
 }
 
+interface Experience {
+  id: number;
+  type: 'work' | 'education';
+  title: string;
+  company: string;
+  period: string;
+  description: string;
+  skills: string[];
+}
+
+interface Stat {
+  id: string;
+  label: string;
+  value: number;
+  suffix: string;
+}
+
 export default function Admin() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'blogs' | 'projects' | 'speaking' | 'messages'>('blogs');
+  const [activeTab, setActiveTab] = useState<'blogs' | 'projects' | 'speaking' | 'messages' | 'stats' | 'experiences'>('blogs');
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [speakingEngagements, setSpeakingEngagements] = useState<SpeakingEngagement[]>([]);
   const [publications, setPublications] = useState<Publication[]>([]);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [stats, setStats] = useState<Stat[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingItem, setEditingItem] = useState<Blog | Project | SpeakingEngagement | Publication | null>(null);
+  const [editingItem, setEditingItem] = useState<Blog | Project | SpeakingEngagement | Publication | Stat | Experience | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteItem, setDeleteItem] = useState<{ id: string; type: 'blog' | 'project' } | null>(null);
+  const [deleteItem, setDeleteItem] = useState<{ id: string; type: 'blog' | 'project' | 'stat' | 'experience' } | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Form states
@@ -109,6 +128,21 @@ export default function Admin() {
     date: '',
     authors: '',
     link: ''
+  });
+
+  const [statFormData, setStatFormData] = useState({
+    label: '',
+    value: '',
+    suffix: ''
+  });
+
+  const [experienceFormData, setExperienceFormData] = useState({
+    type: 'work' as 'work' | 'education',
+    title: '',
+    company: '',
+    period: '',
+    description: '',
+    skills: ''
   });
 
   useEffect(() => {
@@ -154,11 +188,13 @@ export default function Admin() {
     abortControllerRef.current = new AbortController();
     
     try {
-      const [blogsResponse, projectsResponse, speakingResponse, messagesResponse] = await Promise.all([
+      const [blogsResponse, projectsResponse, speakingResponse, messagesResponse, statsResponse, experiencesResponse] = await Promise.all([
         fetch('/api/blogs', { signal: abortControllerRef.current.signal }),
         fetch('/api/projects', { signal: abortControllerRef.current.signal }),
         fetch('/api/speaking-publications', { signal: abortControllerRef.current.signal }),
-        fetch('/api/contact-messages', { signal: abortControllerRef.current.signal })
+        fetch('/api/contact-messages', { signal: abortControllerRef.current.signal }),
+        fetch('/api/stats', { signal: abortControllerRef.current.signal }),
+        fetch('/api/experiences', { signal: abortControllerRef.current.signal })
       ]);
 
       if (blogsResponse.ok) {
@@ -180,6 +216,17 @@ export default function Admin() {
       if (messagesResponse.ok) {
         const messagesData = await messagesResponse.json();
         setContactMessages(messagesData);
+      }
+
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setStats(statsData);
+      }
+
+      if (experiencesResponse.ok) {
+        const experiencesData = await experiencesResponse.json();
+        console.log('Experiences loaded:', experiencesData);
+        setExperiences(experiencesData);
       }
     } catch (error) {
       // Ignore AbortError as it's expected when requests are cancelled
@@ -275,7 +322,51 @@ export default function Admin() {
     }
   };
 
-  const handleEdit = (item: Blog | Project | SpeakingEngagement | Publication) => {
+  const handleExperienceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const endpoint = '/api/experiences';
+    const method = isEditing ? 'PUT' : 'POST';
+    const body = {
+      ...experienceFormData,
+      skills: experienceFormData.skills.split(',').map(s => s.trim()).filter(s => s),
+      ...(isEditing && editingItem && { id: editingItem.id }),
+    };
+
+    const abortController = new AbortController();
+
+    try {
+      // Get session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch(endpoint, {
+        method,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`
+        },
+        body: JSON.stringify(body),
+        signal: abortController.signal
+      });
+
+      if (response.ok) {
+        loadData();
+        resetExperienceForm();
+        toast.success(`Experience ${isEditing ? 'updated' : 'created'} successfully!`, { duration: 3000 });
+      } else {
+        alert('Error saving data');
+      }
+    } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
+      console.error('Error saving:', error);
+      alert('Error saving data');
+    }
+  };
+
+  const handleEdit = (item: Blog | Project | SpeakingEngagement | Publication | Stat | Experience) => {
+    console.log('Editing item:', item, 'Active tab:', activeTab);
     setIsEditing(true);
     setEditingItem(item);
 
@@ -300,13 +391,36 @@ export default function Admin() {
         featured: project.featured,
         category: project.category,
       });
+    } else if (activeTab === 'stats') {
+      const stat = item as Stat;
+      setStatFormData({
+        label: stat.label,
+        value: stat.value.toString(),
+        suffix: stat.suffix
+      });
+    } else if (activeTab === 'experiences') {
+      const experience = item as Experience;
+      setExperienceFormData({
+        type: experience.type,
+        title: experience.title,
+        company: experience.company,
+        period: experience.period,
+        description: experience.description,
+        skills: experience.skills.join(', ')
+      });
     } else {
       // Handle speaking/publications editing inline
     }
   };
 
   const handleDelete = (id: string) => {
-    const type = activeTab === 'blogs' ? 'blog' : 'project';
+    let type: 'blog' | 'project' | 'stat' | 'experience';
+    if (activeTab === 'blogs') type = 'blog';
+    else if (activeTab === 'projects') type = 'project';
+    else if (activeTab === 'stats') type = 'stat';
+    else if (activeTab === 'experiences') type = 'experience';
+    else return;
+    
     setDeleteItem({ id, type });
     setShowDeleteModal(true);
   };
@@ -314,7 +428,19 @@ export default function Admin() {
   const confirmDelete = async () => {
     if (!deleteItem) return;
 
-    const endpoint = deleteItem.type === 'blog' ? `/api/blogs?id=${deleteItem.id}` : `/api/projects?id=${deleteItem.id}`;
+    let endpoint: string;
+    if (deleteItem.type === 'blog') {
+      endpoint = `/api/blogs?id=${deleteItem.id}`;
+    } else if (deleteItem.type === 'project') {
+      endpoint = `/api/projects?id=${deleteItem.id}`;
+    } else if (deleteItem.type === 'stat') {
+      endpoint = `/api/stats?id=${deleteItem.id}`;
+    } else if (deleteItem.type === 'experience') {
+      endpoint = `/api/experiences?id=${deleteItem.id}`;
+    } else {
+      return;
+    }
+    
     const abortController = new AbortController();
 
     try {
@@ -331,7 +457,10 @@ export default function Admin() {
 
       if (response.ok) {
         loadData();
-        toast.success(`${deleteItem.type === 'blog' ? 'Blog' : 'Project'} deleted successfully!`, { duration: 3000 });
+        const itemName = deleteItem.type === 'blog' ? 'Blog' : 
+                        deleteItem.type === 'project' ? 'Project' : 
+                        deleteItem.type === 'stat' ? 'Stat' : 'Experience';
+        toast.success(`${itemName} deleted successfully!`, { duration: 3000 });
       } else {
         alert('Error deleting item');
       }
@@ -379,6 +508,74 @@ export default function Admin() {
     });
     setIsEditing(false);
     setEditingItem(null);
+  };
+
+  const resetStatForm = () => {
+    setStatFormData({
+      label: '',
+      value: '',
+      suffix: ''
+    });
+    setIsEditing(false);
+    setEditingItem(null);
+  };
+
+  const resetExperienceForm = () => {
+    setExperienceFormData({
+      type: 'work',
+      title: '',
+      company: '',
+      period: '',
+      description: '',
+      skills: ''
+    });
+    setIsEditing(false);
+    setEditingItem(null);
+  };
+
+  const handleStatSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const endpoint = '/api/stats';
+    const method = isEditing ? 'PUT' : 'POST';
+    const body = {
+      ...statFormData,
+      value: parseInt(statFormData.value) || 0,
+      ...(isEditing && editingItem && { id: editingItem.id }),
+    };
+
+    const abortController = new AbortController();
+
+    try {
+      // Get session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch(endpoint, {
+        method,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`
+        },
+        body: JSON.stringify(body),
+        signal: abortController.signal
+      });
+
+      if (response.ok) {
+        loadData();
+        resetStatForm();
+        toast.success(`Stat ${isEditing ? 'updated' : 'created'} successfully!`, { duration: 3000 });
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || 'Error saving data';
+        alert(errorMessage);
+      }
+    } catch (error) {
+      // Ignore AbortError as it's expected when requests are cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
+      console.error('Error saving:', error);
+      alert('Error saving data');
+    }
   };
 
   const addSpeakingEngagement = () => {
@@ -580,6 +777,32 @@ export default function Admin() {
           >
             Messages ({contactMessages.filter(m => m.status === 'unread').length})
           </button>
+          <button
+            onClick={() => {
+              setActiveTab('stats');
+              resetStatForm();
+            }}
+            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+              activeTab === 'stats'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Stats
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('experiences');
+              resetExperienceForm();
+            }}
+            className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors ${
+              activeTab === 'experiences'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Experiences
+          </button>
         </div>
         
 
@@ -593,8 +816,11 @@ export default function Admin() {
             <h2 className="text-2xl font-bold mb-6">
               {activeTab === 'messages' ? 'Contact Messages' :
                activeTab === 'speaking' ? 'Speaking & Publications Management' : 
+               activeTab === 'stats' ? 'Stats Management' :
+               activeTab === 'experiences' ? 'Experience Management' :
                isEditing ? 'Edit' : 'Add'} {activeTab === 'blogs' ? 'Blog' : 
-               activeTab === 'projects' ? 'Project' : ''}
+               activeTab === 'projects' ? 'Project' : 
+               activeTab === 'experiences' ? 'Experience' : ''}
             </h2>
 
             {activeTab === 'speaking' ? (
@@ -938,6 +1164,142 @@ export default function Admin() {
                   )}
                 </div>
               </form>
+            ) : activeTab === 'stats' ? (
+              <form onSubmit={handleStatSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Label</label>
+                  <input
+                    type="text"
+                    value={statFormData.label}
+                    onChange={(e) => setStatFormData({...statFormData, label: e.target.value})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+                    placeholder="e.g., Years of Experience"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Value</label>
+                  <input
+                    type="number"
+                    value={statFormData.value}
+                    onChange={(e) => setStatFormData({...statFormData, value: e.target.value})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+                    placeholder="e.g., 10"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Suffix</label>
+                  <input
+                    type="text"
+                    value={statFormData.suffix}
+                    onChange={(e) => setStatFormData({...statFormData, suffix: e.target.value})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+                    placeholder="e.g., +, %, years"
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+                  >
+                    {isEditing ? 'Update' : 'Create'}
+                  </button>
+                  {isEditing && (
+                    <button
+                      type="button"
+                      onClick={resetStatForm}
+                      className="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            ) : activeTab === 'experiences' ? (
+              <form onSubmit={handleExperienceSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Type</label>
+                  <select
+                    value={experienceFormData.type}
+                    onChange={(e) => setExperienceFormData({...experienceFormData, type: e.target.value as any})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+                  >
+                    <option value="work">Work</option>
+                    <option value="education">Education</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Title</label>
+                  <input
+                    type="text"
+                    value={experienceFormData.title}
+                    onChange={(e) => setExperienceFormData({...experienceFormData, title: e.target.value})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+                    placeholder="e.g., Software Engineer"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Company/Institution</label>
+                  <input
+                    type="text"
+                    value={experienceFormData.company}
+                    onChange={(e) => setExperienceFormData({...experienceFormData, company: e.target.value})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+                    placeholder="e.g., Google or MIT"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Period</label>
+                  <input
+                    type="text"
+                    value={experienceFormData.period}
+                    onChange={(e) => setExperienceFormData({...experienceFormData, period: e.target.value})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+                    placeholder="e.g., 2020 - Present"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Description</label>
+                  <textarea
+                    value={experienceFormData.description}
+                    onChange={(e) => setExperienceFormData({...experienceFormData, description: e.target.value})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white h-24"
+                    placeholder="Describe your role and achievements"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Skills (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={experienceFormData.skills}
+                    onChange={(e) => setExperienceFormData({...experienceFormData, skills: e.target.value})}
+                    className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+                    placeholder="React, Node.js, Python"
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+                  >
+                    {isEditing ? 'Update' : 'Create'}
+                  </button>
+                  {isEditing && (
+                    <button
+                      type="button"
+                      onClick={resetExperienceForm}
+                      className="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
             ) : activeTab === 'messages' ? (
               <div className="text-center py-12">
                 <div className="mb-6">
@@ -978,9 +1340,11 @@ export default function Admin() {
             <h2 className="text-2xl font-bold mb-6">
               {activeTab === 'messages' ? 'Contact Messages' :
                activeTab === 'speaking' ? 'Current Speaking & Publications' :
+               activeTab === 'stats' ? 'Stats' :
                activeTab === 'blogs' ? 'Blog Posts' : 'Projects'} 
               ({activeTab === 'messages' ? contactMessages.length :
                 activeTab === 'speaking' ? `${speakingEngagements.length + publications.length} items` :
+                activeTab === 'stats' ? stats.length :
                 activeTab === 'blogs' ? blogs.length : projects.length})
             </h2>
 
@@ -1052,6 +1416,80 @@ export default function Admin() {
                     </div>
                   </div>
                 ))
+              ) : activeTab === 'stats' ? (
+                stats.map((item) => (
+                  <div key={item.id} className="bg-gray-700 rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">{item.label}</h3>
+                        <div className="text-2xl font-bold text-blue-400 mb-2">
+                          {item.value}{item.suffix}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm font-medium transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm font-medium transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : activeTab === 'experiences' ? (
+                <>
+                  <div className="text-sm text-gray-400 mb-4">
+                    Total experiences: {experiences.length}
+                  </div>
+                  {experiences.map((item) => (
+                    <div key={item.id} className="bg-gray-700 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                          item.type === 'work' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'
+                        }`}>
+                          {item.type === 'work' ? '💼 Work' : '📖 Education'}
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(item)}
+                            className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm font-medium transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id.toString())}
+                            className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm font-medium transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                      <h3 className="font-semibold mb-1">{item.title}</h3>
+                      <p className="text-sm text-blue-400 font-medium mb-1">{item.company}</p>
+                      <p className="text-sm text-gray-400 mb-2">{item.period}</p>
+                      <p className="text-sm text-gray-300 mb-3">{item.description}</p>
+                      {item.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {item.skills.map((skill) => (
+                            <span
+                              key={skill}
+                              className="px-2 py-1 bg-gray-600 rounded text-xs text-gray-300"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </>
               ) : activeTab === 'messages' ? (
                 contactMessages.length === 0 ? (
                   <div className="text-center py-12">
@@ -1119,7 +1557,7 @@ export default function Admin() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-white mb-2">Delete {deleteItem?.type === 'blog' ? 'Blog' : 'Project'}</h3>
+                <h3 className="text-lg font-medium text-white mb-2">Delete {deleteItem?.type === 'blog' ? 'Blog' : deleteItem?.type === 'project' ? 'Project' : 'Stat'}</h3>
                 <p className="text-gray-300 mb-6">
                   Are you sure you want to delete this {deleteItem?.type}? This action cannot be undone.
                 </p>

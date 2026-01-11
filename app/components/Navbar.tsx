@@ -15,8 +15,8 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show navbar only after scrolling past hero section (100vh)
-      setIsScrolled(window.scrollY > window.innerHeight - 100);
+      // Show navbar only after scrolling 10vh
+      setIsScrolled(window.scrollY > window.innerHeight * 0.1);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -50,7 +50,7 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
               e.preventDefault();
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent"
+            className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient"
             whileHover={{ scale: 1.05 }}
           >
             Debashish

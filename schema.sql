@@ -62,6 +62,76 @@ CREATE TABLE contact_messages (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+
+-- Experiences table
+CREATE TABLE experiences (
+  id SERIAL PRIMARY KEY,
+  type TEXT NOT NULL CHECK (type IN ('work', 'education')),
+  title TEXT NOT NULL,
+  company TEXT NOT NULL,
+  period TEXT NOT NULL,
+  description TEXT NOT NULL,
+  skills TEXT[] NOT NULL DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+
+-- Stats table
+-- Stats table for dynamic statistics
+CREATE TABLE IF NOT EXISTS stats (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  label TEXT NOT NULL UNIQUE,
+  value INTEGER NOT NULL DEFAULT 0,
+  suffix TEXT DEFAULT '',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert default stats
+INSERT INTO stats (label, value, suffix) VALUES
+  ('Years Experience', 3, '+'),
+  ('Projects Completed', 25, '+'),
+  ('Happy Clients', 15, '+'),
+  ('Technologies', 20, '+')
+ON CONFLICT (label) DO NOTHING;
+
+-- Enable RLS
+ALTER TABLE stats ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for read access (public)
+CREATE POLICY "Public read access to stats" ON stats
+  FOR SELECT USING (true);
+
+-- Create policy for admin access (full CRUD)
+CREATE POLICY "Admin full access to stats" ON stats
+  FOR ALL USING (
+    true
+  );
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Trigger to automatically update updated_at
+CREATE TRIGGER update_stats_updated_at
+  BEFORE UPDATE ON stats
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+--Stats table end
+
+-- Create indexes for better performance
+CREATE INDEX idx_experiences_type ON experiences(type);
+CREATE INDEX idx_experiences_period ON experiences(period DESC);
+
+-- Enable Row Level Security
+ALTER TABLE experiences ENABLE ROW LEVEL SECURITY;
+
 -- Create indexes for better performance
 CREATE INDEX idx_blogs_date ON blogs(date DESC);
 CREATE INDEX idx_projects_featured ON projects(featured);
@@ -79,32 +149,39 @@ ALTER TABLE publications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access
--- Blogs
-CREATE POLICY "Public can read blogs" ON blogs FOR SELECT USING (true);
+--Blogs RLS Policies
 CREATE POLICY "Admin can insert blogs" ON blogs FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public can read blogs" ON blogs FOR SELECT USING (true);
 CREATE POLICY "Admin can update blogs" ON blogs FOR UPDATE USING (true);
 CREATE POLICY "Admin can delete blogs" ON blogs FOR DELETE USING (true);
 
--- Projects
-CREATE POLICY "Public can read projects" ON projects FOR SELECT USING (true);
+--Projects RLS Policies
 CREATE POLICY "Admin can insert projects" ON projects FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public can read projects" ON projects FOR SELECT USING (true);
 CREATE POLICY "Admin can update projects" ON projects FOR UPDATE USING (true);
 CREATE POLICY "Admin can delete projects" ON projects FOR DELETE USING (true);
 
--- Speaking Engagements
-CREATE POLICY "Public can read speaking engagements" ON speaking_engagements FOR SELECT USING (true);
+--Speaking Engagements RLS Policies
 CREATE POLICY "Admin can insert speaking engagements" ON speaking_engagements FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public can read speaking engagements" ON speaking_engagements FOR SELECT USING (true);
 CREATE POLICY "Admin can update speaking engagements" ON speaking_engagements FOR UPDATE USING (true);
 CREATE POLICY "Admin can delete speaking engagements" ON speaking_engagements FOR DELETE USING (true);
 
--- Publications
-CREATE POLICY "Public can read publications" ON publications FOR SELECT USING (true);
+--Publications RLS Policies
 CREATE POLICY "Admin can insert publications" ON publications FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public can read publications" ON publications FOR SELECT USING (true);
 CREATE POLICY "Admin can update publications" ON publications FOR UPDATE USING (true);
 CREATE POLICY "Admin can delete publications" ON publications FOR DELETE USING (true);
 
--- Contact Messages
-CREATE POLICY "Public can insert contact_messages" ON contact_messages FOR INSERT WITH CHECK (true);
-CREATE POLICY "Admin can read contact_messages" ON contact_messages FOR SELECT USING (true);
-CREATE POLICY "Admin can update contact_messages" ON contact_messages FOR UPDATE USING (true);
-CREATE POLICY "Admin can delete contact_messages" ON contact_messages FOR DELETE USING (true);
+--Contact Message RLS Policies
+CREATE POLICY "Admin can insert contact messages" ON contact_messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public can read contact messages" ON contact_messages FOR SELECT USING (true);
+CREATE POLICY "Admin can update contact messages" ON contact_messages FOR UPDATE USING (true);
+CREATE POLICY "Admin can delete contact messages" ON contact_messages FOR DELETE USING (true);
+
+
+-- Experience RLS policies 
+CREATE POLICY "Admin can insert experiences" ON experiences FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public can read experiences" ON experiences FOR SELECT USING (true);
+CREATE POLICY "Admin can update experiences" ON experiences FOR UPDATE USING (true);
+CREATE POLICY "Admin can delete experiences" ON experiences FOR DELETE USING (true);

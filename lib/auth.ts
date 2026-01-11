@@ -30,8 +30,27 @@ export async function verifyAdminAuth(request?: Request) {
       const authHeader = request.headers.get('authorization')
       if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7)
-        const { data: { user } } = await supabase.auth.getUser(token)
+        // Create a new client with the token to properly set user context
+        const supabaseWithToken = createServerClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
+          {
+            cookies: {
+              getAll() {
+                return cookieStore.getAll()
+              },
+              setAll(cookiesToSet: any[]) {
+                cookiesToSet.forEach(({ name, value, ...options }) => {
+                  cookieStore.set(name, value, options)
+                })
+              },
+            },
+          }
+        )
+        const { data: { user } } = await supabaseWithToken.auth.getUser(token)
         if (user) {
+          // Store the authenticated client for use in the API route
+          ;(global as any).authenticatedSupabaseClient = supabaseWithToken
           return true
         }
       }
@@ -40,6 +59,9 @@ export async function verifyAdminAuth(request?: Request) {
     if (!session) {
       return false
     }
+    
+    // Store the authenticated client for use in the API route
+    ;(global as any).authenticatedSupabaseClient = supabase
     
     // You can add additional checks here, like checking if the user email is authorized
     // For example: return session.user.email === 'admin@example.com'

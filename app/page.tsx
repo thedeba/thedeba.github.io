@@ -73,8 +73,10 @@ export default function Home() {
   // Typing animation effect
   useEffect(() => {
     const texts = [
-      "Software Engineer",
-      "ML/DL Engineer",
+      "Software Developer",
+      "Machine Learning Engineer",
+      "Deep Learning Engineer",
+      "NLP Engineer",
       "Full Stack Developer"
     ];
     let textIndex = 0;
@@ -151,7 +153,7 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-950 to-black text-white transition-colors duration-300">
       {/* clock on the top right */}
       {/* <Clock /> */}
       <Navbar onScrollTo={scrollToSection} />
@@ -161,7 +163,7 @@ export default function Home() {
         {/* Animated Background Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
             animate={{
               x: [0, 100, 0],
               y: [0, 50, 0],
@@ -174,7 +176,7 @@ export default function Home() {
             }}
           />
           <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
             animate={{
               x: [0, -100, 0],
               y: [0, -50, 0],
@@ -215,23 +217,66 @@ export default function Home() {
             <motion.h1
               className="text-5xl md:text-7xl font-bold mb-4 relative"
               style={{
-                background: "linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #60a5fa)",
-                backgroundSize: "200% 100%",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
                 filter: "drop-shadow(0 0 30px rgba(96, 165, 250, 0.5))",
-              }}
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "linear",
+                perspective: "1000px",
               }}
             >
-              Debashish
+              {"Debashish".split("").map((letter, index) => (
+                <motion.span
+                  key={index}
+                  style={{
+                    display: "inline-block",
+                    backgroundImage: `linear-gradient(135deg, 
+                      hsl(${200 + index * 20}, 100%, 60%), 
+                      hsl(${280 + index * 20}, 100%, 65%), 
+                      hsl(${340 + index * 20}, 100%, 70%))`,
+                    backgroundSize: "300% 300%",
+                    backgroundPosition: "0% 0%",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    textShadow: `
+                      0 1px 0 #ccc,
+                      0 2px 0 #c9c9c9,
+                      0 3px 0 #bbb,
+                      0 4px 0 #b9b9b9,
+                      0 5px 0 #aaa,
+                      0 6px 1px rgba(0,0,0,.1),
+                      0 0 5px rgba(0,0,0,.1),
+                      0 1px 3px rgba(0,0,0,.3),
+                      0 3px 5px rgba(0,0,0,.2),
+                      0 5px 10px rgba(0,0,0,.25),
+                      0 10px 10px rgba(0,0,0,.2),
+                      0 20px 20px rgba(0,0,0,.15)`,
+                    transformStyle: "preserve-3d",
+                  }}
+                  animate={{
+                    y: [0, -12, 0],
+                    scale: [1, 0.95, 1.05, 1],
+                    rotateZ: [0, -10, 10, 0],
+                    opacity: [0.7, 1, 0.7],
+                    backgroundPosition: ["0% 0%", "25% 25%", "50% 50%", "75% 75%", "100% 100%", "75% 75%", "50% 50%", "25% 25%", "0% 0%"],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    delay: index * 0.3,
+                    ease: "easeInOut",
+                  }}
+                  whileHover={{
+                    scale: 1.2,
+                    rotateZ: 15,
+                    y: -8,
+                    opacity: 1,
+                    transition: { 
+                      duration: 0.4,
+                      ease: "easeOut"
+                    }
+                  }}
+                >
+                  {letter}
+                </motion.span>
+              ))}
             </motion.h1>
             {/* Glowing effect behind name */}
             <motion.div
@@ -259,7 +304,8 @@ export default function Home() {
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             <span className="text-gray-300 font-medium">
-              I am a {displayedText}
+                {/* I am a */}
+               {displayedText}
               {/* typing curso style  */}
               <motion.span
                 className="inline-block w-1 h-5 md:h-7 bg-gradient-to-b from-blue-400 via-purple-500 to-pink-500 ml-1 rounded-sm shadow-lg shadow-blue-500/50 align-text-bottom"

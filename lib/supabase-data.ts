@@ -56,6 +56,19 @@ export interface ContactMessage {
   updated_at: string;
 }
 
+// Experience types
+export interface Experience {
+  id: number;
+  type: 'work' | 'education';
+  title: string;
+  company: string;
+  period: string;
+  description: string;
+  skills: string[];
+  created_at: string;
+  updated_at: string;
+}
+
 // Blog operations
 export const blogOperations = {
   async getAll(): Promise<Blog[]> {
@@ -400,5 +413,61 @@ export const contactMessageOperations = {
     
     if (error) throw error;
     return count || 0;
+  }
+};
+
+// Experience operations
+export const experienceOperations = {
+  async getAll(): Promise<Experience[]> {
+    const { data, error } = await supabase
+      .from('experiences')
+      .select('*')
+      .order('period', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getById(id: number): Promise<Experience | null> {
+    const { data, error } = await supabase
+      .from('experiences')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async create(experience: Omit<Experience, 'id' | 'created_at' | 'updated_at'>): Promise<Experience> {
+    const { data, error } = await supabase
+      .from('experiences')
+      .insert(experience)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: number, updates: Partial<Experience>): Promise<Experience> {
+    const { data, error } = await supabase
+      .from('experiences')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: number): Promise<void> {
+    const { error } = await supabase
+      .from('experiences')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
   }
 };

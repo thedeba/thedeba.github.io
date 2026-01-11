@@ -83,7 +83,8 @@ export default function Footer({ onScrollTo }: FooterProps) {
               Debashish
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Software Engineer, ML/DL Engineer & Full Stack Developer. 
+              Software Developer, Machine Learning Engineer, Deep Learning Engineer & Full Stack Developer.
+              <br />
               Building innovative solutions with modern technologies.
             </p>
           </motion.div>

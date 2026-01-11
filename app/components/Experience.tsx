@@ -1,101 +1,49 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { fetchExperiencesClient } from "@/lib/data/dataFetcher";
 
-const experiences = [
-  {
-    id: 1,
-    type: "work",
-    title: "Freelance Software Engineer",
-    company: "Self-Employed",
-    period: "2025 - Present",
-    description: "Freelance Software Engineer with hands-on experience in building scalable web applications, AI-driven solutions, and cloud-based systems. I specialize in modern frontend frameworks like React and Next.js, backend development using Node.js and Python, and database management with MongoDB, MySQL, and PostgreSQL. I also work with machine learning models using TensorFlow and deploy secure, high-performance applications on AWS and Firebase. Passionate about clean code, performance optimization, and solving real-world problems.",
-    skills: ["React", "Next.js", "Python", "TensorFlow", "Node.js", "MongoDB", "AWS", "MySQL", "PostgreSQL", "Firebase", "C", "C++", "Java", "Shell Script", "Flutter",],
-  },
-  {
-    id: 2,
-    type: "work",
-    title: "IoT Engineer Intern",
-    company: "SiS InflexionpointBD",
-    period: "2023 - 2024",
-    description: "Developed and maintained web applications using modern technologies. Collaborated with cross-functional teams to deliver high-quality products.",
-    skills: ["Arduino", "ESP32", "MongoDB", "C", "C++", "Java", "Shell Script", "Flutter",],
-  },
-  {
-    id: 3,
-    type: "education",
-    title: "B.Sc. in Computer Science & Engineering",
-    company: "Daffodil International University",
-    period: "2021 - 2025",
-    description: "Graduated with a focus on AI/ML/NLP and software engineering. Participated in various coding competitions and research projects.",
-    skills: ["Data Structures", "Algorithms", "Machine Learning", "Natural Language Processing", "Software Engineering"],
-  },
-  {
-    id: 4,
-    type: "education",
-    title: "Dinajpur Adarsha College",
-    company: "Higher Secondary School",
-    period: "2016 - 2018",
-    description: "Graduated with a focus on the field of Science.",
-    skills: ["Higher Mathemetics", "Physics", "Chemistry", "Biology", "English"],
-  },
-  {
-    id: 5,
-    type: "education",
-    title: "Jnangkur Pilot High School",
-    company: "Secondary School",
-    period: "2014 - 2016",
-    description: "I finished my secondary education from here.",
-    skills: ["Higher Mathemetics", "Physics", "Chemistry", "Biology", "English", "Religion", "Social Science"],
-  },
-  {
-    id: 6,
-    type: "education",
-    title: "Suffa Residential Model School",
-    company: "Secondary School",
-    period: "2014 - 2014",
-    description: "Started reading in this school in class 9 but not finished from here.",
-    skills: ["Higher Mathemetics", "Physics", "Chemistry", "Biology", "English", "Religion", "Social Science"],
-  },
-  {
-    id: 7,
-    type: "education",
-    title: "Amena Baki Residential Model School & College",
-    company: "Junior School",
-    period: "2013 - 2014",
-    description: "Admitted in class 6 and finished class 8 from here.",
-    skills: ["Bengali", "English", "Religion", "Social Science", "Science", "Mathematics", "Art", "Music", "Physical Education"],
-  },
-  {
-    id: 8,
-    type: "education",
-    title: "Manmathpur Co-Operative High School",
-    company: "Junior School",
-    period: "2012 - 2013",
-    description: "Admitted in class 6 and finished class 7 from here.",
-    skills: ["Bengali", "English", "Religion", "Social Science", "Science", "Mathematics", "Art", "Music", "Physical Education"],
-  },
-  {
-    id: 9,
-    type: "education",
-    title: "Manmathpur Government Primary School",
-    company: "Primary School",
-    period: "2010 - 2011",
-    description: "Completed my primary education from here again.",
-    skills: ["Bengali", "English", "Religion", "Social Science", "Mathematics"],
-  },
-  {
-    id: 10,
-    type: "education",
-    title: "Khorakhai Baishnab Para Government Primary School",
-    company: "Primary School",
-    period: "2006 - 2009",
-    description: "I have completed my primary education from here.",
-    skills: ["Bengali", "English", "Religion", "Social Science", "Mathematics"],
-  },
-];
+interface Experience {
+  id: number;
+  type: "work" | "education";
+  title: string;
+  company: string;
+  period: string;
+  description: string;
+  skills: string[];
+}
 
 export default function Experience() {
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadExperiences = async () => {
+      try {
+        const data = await fetchExperiencesClient();
+        setExperiences(data);
+      } catch (error) {
+        console.error('Failed to load experiences:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadExperiences();
+  }, []);
+
+  if (loading) {
+    return (
+      <section id="experience" className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Experience</h2>
+          <p className="text-gray-300 text-lg">Loading...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="experience" className="py-20 px-4">
       <div className="max-w-4xl mx-auto">

@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://debashish.vercel.app'),
+  metadataBase: new URL('https://deba.vercel.app'),
   title: "Debashish | Software Engineer | Full Stack Developer",
   description: "Debashish is a Software Engineer, ML/DL Engineer & Full Stack Developer specializing in building innovative web applications and AI solutions.",
   keywords: ["Software Engineer", "Full Stack Developer", "Machine Learning", "React", "Next.js", "Python", "AI", "Web Development"],

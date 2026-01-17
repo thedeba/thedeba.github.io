@@ -6,37 +6,75 @@ import { AuthProvider } from './contexts/AuthContext';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://deba.vercel.app'),
-  title: "Debashish | Software Engineer | Full Stack Developer",
-  description: "Debashish is a Software Engineer, ML/DL Engineer & Full Stack Developer specializing in building innovative web applications and AI solutions.",
-  keywords: ["Software Engineer", "Full Stack Developer", "Machine Learning", "React", "Next.js", "Python", "AI", "Web Development"],
-  authors: [{ name: "Debashish" }],
+  title: {
+    default: "Debashish | Software Engineer | Full Stack Developer | AI/ML Expert",
+    template: "%s | Debashish Portfolio"
+  },
+  description: "Debashish - Software Engineer, ML/DL Engineer & Full Stack Developer specializing in React, Next.js, Python, and AI solutions. Building innovative web applications with cutting-edge technology.",
+  keywords: [
+    "Software Engineer", 
+    "Full Stack Developer", 
+    "Machine Learning Engineer", 
+    "Deep Learning", 
+    "React Developer", 
+    "Next.js Developer", 
+    "Python Developer", 
+    "AI Engineer", 
+    "Web Development", 
+    "TypeScript",
+    "JavaScript",
+    "Node.js",
+    "Portfolio Developer",
+    "Frontend Developer",
+    "Backend Developer"
+  ],
+  authors: [{ name: "Debashish", url: "https://deba.vercel.app" }],
   creator: "Debashish",
+  publisher: "Debashish Portfolio",
+  category: "technology",
+  classification: "portfolio",
+  referrer: "origin-when-cross-origin",
+  alternates: {
+    canonical: "https://deba.vercel.app",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://debashish.vercel.app",
+    url: "https://deba.vercel.app",
     siteName: "Debashish Portfolio",
-    title: "Debashish | Software Engineer | Full Stack Developer",
-    description: "Software Engineer, ML/DL Engineer & Full Stack Developer specializing in building innovative web applications and AI solutions.",
+    title: "Debashish | Software Engineer | Full Stack Developer | AI/ML Expert",
+    description: "Software Engineer, ML/DL Engineer & Full Stack Developer specializing in React, Next.js, Python, and AI solutions. Building innovative web applications with cutting-edge technology.",
     images: [
       {
         url: "/profile.png",
         width: 1200,
         height: 630,
-        alt: "Debashish Portfolio",
+        alt: "Debashish - Software Engineer & AI Expert",
+        type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Debashish | Software Engineer | Full Stack Developer",
-    description: "Software Engineer, ML/DL Engineer & Full Stack Developer",
+    title: "Debashish | Software Engineer | Full Stack Developer | AI/ML Expert",
+    description: "Software Engineer, ML/DL Engineer & Full Stack Developer specializing in React, Next.js, Python, and AI solutions.",
     images: ["/profile.png"],
     creator: "@debashish",
+    site: "@debashish",
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "mZ9saHtt1EBD-mcToRu-WvV5pCzADlbKseFj3XSZD98",
   },
 };
 

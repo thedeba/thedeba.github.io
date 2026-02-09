@@ -185,3 +185,20 @@ CREATE POLICY "Admin can insert experiences" ON experiences FOR INSERT WITH CHEC
 CREATE POLICY "Public can read experiences" ON experiences FOR SELECT USING (true);
 CREATE POLICY "Admin can update experiences" ON experiences FOR UPDATE USING (true);
 CREATE POLICY "Admin can delete experiences" ON experiences FOR DELETE USING (true);
+
+-- Dummy activity table to keep database active
+CREATE TABLE IF NOT EXISTS dummy_activity (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  activity_data TEXT NOT NULL DEFAULT 'Keep-alive ping',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index for better performance
+CREATE INDEX idx_dummy_activity_created_at ON dummy_activity(created_at DESC);
+
+-- Enable RLS for dummy_activity
+ALTER TABLE dummy_activity ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for dummy_activity
+CREATE POLICY "Public read dummy_activity" ON dummy_activity FOR SELECT USING (true);
+CREATE POLICY "Public insert dummy_activity" ON dummy_activity FOR INSERT WITH CHECK (true);

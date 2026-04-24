@@ -1,19 +1,6 @@
 import { NextResponse } from 'next/server';
-import admin from 'firebase-admin';
+import { db } from '@/lib/firebase-admin';
 import { SpeakingEngagement, Publication } from '@/lib/firebase-data';
-
-// Initialize admin if not already initialized
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: 'deba-portfolio',
-      clientEmail: 'firebase-adminsdk-fbsvc-0af458b284@deba-portfolio.iam.gserviceaccount.com',
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
-
-const db = admin.firestore();
 
 // Speaking engagement operations using admin SDK
 const speakingEngagementOperations = {

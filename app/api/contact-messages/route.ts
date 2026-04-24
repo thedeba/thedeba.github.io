@@ -1,19 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from 'firebase-admin';
+import { db } from '@/lib/firebase-admin';
 import { ContactMessage } from '@/lib/firebase-data';
-
-// Initialize admin if not already initialized
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: 'deba-portfolio',
-      clientEmail: 'firebase-adminsdk-fbsvc-0af458b284@deba-portfolio.iam.gserviceaccount.com',
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
-
-const db = admin.firestore();
 
 // Contact message operations using admin SDK
 const contactMessageOperations = {
@@ -30,8 +17,8 @@ const contactMessageOperations = {
   async create(message: Omit<ContactMessage, 'id' | 'created_at' | 'updated_at'>): Promise<ContactMessage> {
     const newMessage = {
       ...message,
-      created_at: admin.firestore.Timestamp.now(),
-      updated_at: admin.firestore.Timestamp.now(),
+      created_at: new Date(),
+      updated_at: new Date(),
     };
     
     const docRef = await db.collection('contact_messages').add(newMessage);
@@ -42,7 +29,7 @@ const contactMessageOperations = {
   async update(id: string, updates: Partial<ContactMessage>): Promise<ContactMessage> {
     const updateData = {
       ...updates,
-      updated_at: admin.firestore.Timestamp.now()
+      updated_at: new Date()
     };
     
     await db.collection('contact_messages').doc(id).update(updateData);

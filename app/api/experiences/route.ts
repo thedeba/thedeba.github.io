@@ -1,19 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from 'firebase-admin';
+import { db } from '@/lib/firebase-admin';
 import { Experience } from '@/lib/firebase-data';
-
-// Initialize admin if not already initialized
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: 'deba-portfolio',
-      clientEmail: 'firebase-adminsdk-fbsvc-0af458b284@deba-portfolio.iam.gserviceaccount.com',
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
-
-const db = admin.firestore();
 
 // Experience operations using admin SDK
 const experienceOperations = {
@@ -30,8 +17,8 @@ const experienceOperations = {
   async create(experience: Omit<Experience, 'id' | 'created_at' | 'updated_at'>): Promise<Experience> {
     const newExperience = {
       ...experience,
-      created_at: admin.firestore.Timestamp.now(),
-      updated_at: admin.firestore.Timestamp.now(),
+      created_at: new Date(),
+      updated_at: new Date(),
     };
     
     const docRef = await db.collection('experiences').add(newExperience);
@@ -42,7 +29,7 @@ const experienceOperations = {
   async update(id: string, updates: Partial<Experience>): Promise<Experience> {
     const updateData = {
       ...updates,
-      updated_at: admin.firestore.Timestamp.now()
+      updated_at: new Date()
     };
     
     await db.collection('experiences').doc(id).update(updateData);

@@ -1,70 +1,35 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { auth } from './firebase-admin'
 import { NextResponse } from 'next/server'
 
 export async function verifyAdminAuth(request?: Request) {
   try {
-    // First try to get session from cookies (server-side)
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet: any[]) {
-            cookiesToSet.forEach(({ name, value, ...options }) => {
-              cookieStore.set(name, value, options)
-            })
-          },
-        },
-      }
-    )
+    let token = null
     
-    let { data: { session } } = await supabase.auth.getSession()
-    
-    // If no session from cookies, try Authorization header (client-side)
-    if (!session && request) {
+    // Try to get token from Authorization header
+    if (request) {
       const authHeader = request.headers.get('authorization')
       if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7)
-        // Create a new client with the token to properly set user context
-        const supabaseWithToken = createServerClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
-          {
-            cookies: {
-              getAll() {
-                return cookieStore.getAll()
-              },
-              setAll(cookiesToSet: any[]) {
-                cookiesToSet.forEach(({ name, value, ...options }) => {
-                  cookieStore.set(name, value, options)
-                })
-              },
-            },
-          }
-        )
-        const { data: { user } } = await supabaseWithToken.auth.getUser(token)
-        if (user) {
-          // Store the authenticated client for use in the API route
-          ;(global as any).authenticatedSupabaseClient = supabaseWithToken
-          return true
-        }
+        token = authHeader.substring(7)
       }
     }
     
-    if (!session) {
+    if (!token) {
+      console.log('No token found in authorization header')
       return false
     }
     
-    // Store the authenticated client for use in the API route
-    ;(global as any).authenticatedSupabaseClient = supabase
+    console.log('Attempting to verify token:', token.substring(0, 20) + '...')
+    
+    // Verify the Firebase ID token
+    const decodedToken = await auth.verifyIdToken(token)
+    console.log('Token verified successfully for user:', decodedToken.email)
     
     // You can add additional checks here, like checking if the user email is authorized
-    // For example: return session.user.email === 'admin@example.com'
+    // For now, allow any authenticated user
+    // TODO: Add proper admin email checking
+    
+    // Store the decoded token for use in the API route
+    ;(global as any).decodedToken = decodedToken
     
     return true
   } catch (error) {

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 interface SpeakingEngagement {
-  id: number;
+  id: string;
   title: string;
   event: string;
   date: string;
@@ -14,7 +14,7 @@ interface SpeakingEngagement {
 }
 
 interface Publication {
-  id: number;
+  id: string;
   title: string;
   journal: string;
   date: string;
@@ -122,23 +122,23 @@ export default function SpeakingPublicationsAdmin() {
 
   // Speaking engagement handlers
   const addSpeakingEngagement = () => {
-    const newItem = { ...speakingForm, id: Date.now() };
+    const newItem = { ...speakingForm, id: Date.now().toString() };
     setSpeakingEngagements([...speakingEngagements, newItem]);
     setSpeakingForm({ title: '', event: '', date: '', location: '', type: 'talk' });
   };
 
-  const removeSpeakingEngagement = (id: number) => {
+  const removeSpeakingEngagement = (id: string) => {
     setSpeakingEngagements(speakingEngagements.filter(item => item.id !== id));
   };
 
   // Publication handlers
   const addPublication = () => {
-    const newItem = { ...publicationForm, id: Date.now() };
+    const newItem = { ...publicationForm, id: Date.now().toString() };
     setPublications([...publications, newItem]);
     setPublicationForm({ title: '', journal: '', date: '', authors: '', link: '' });
   };
 
-  const removePublication = (id: number) => {
+  const removePublication = (id: string) => {
     setPublications(publications.filter(item => item.id !== id));
   };
 

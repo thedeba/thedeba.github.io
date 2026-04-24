@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
+import { auth } from "@/lib/firebase";
 import toast from 'react-hot-toast';
 
 interface Stat {
@@ -46,7 +46,7 @@ export default function StatsManager() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`,
         },
         body: JSON.stringify(stat),
       });
@@ -70,7 +70,7 @@ export default function StatsManager() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`,
         },
         body: JSON.stringify(newStat),
       });
@@ -96,7 +96,7 @@ export default function StatsManager() {
       const response = await fetch(`/api/stats?id=${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`,
         },
       });
 

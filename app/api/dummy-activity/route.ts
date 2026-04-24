@@ -1,41 +1,21 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { db } from '@/lib/firebase-admin'
 
 export async function POST(request: Request) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      return NextResponse.json(
-        { error: 'Missing Supabase credentials' },
-        { status: 500 }
-      )
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
     // Insert dummy data with timestamp
-    const { data, error } = await supabase
-      .from('dummy_activity')
-      .insert({
-        activity_data: `Keep-alive ping - ${new Date().toISOString()}`
-      })
-      .select()
+    const docRef = await db.collection('dummy_activity').add({
+      activity_data: `Keep-alive ping - ${new Date().toISOString()}`,
+      created_at: new Date()
+    })
 
-    if (error) {
-      console.error('Error inserting dummy activity:', error)
-      return NextResponse.json(
-        { error: 'Failed to insert dummy activity' },
-        { status: 500 }
-      )
-    }
+    const newDoc = await docRef.get()
 
     return NextResponse.json(
       {
         success: true,
         message: 'Dummy activity recorded successfully',
-        data
+        data: { id: newDoc.id, ...newDoc.data() }
       },
       { status: 200 }
     )
@@ -51,37 +31,19 @@ export async function POST(request: Request) {
 // Optional: GET endpoint to check latest dummy activity
 export async function GET(request: Request) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      return NextResponse.json(
-        { error: 'Missing Supabase credentials' },
-        { status: 500 }
-      )
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
     // Get latest dummy activity
-    const { data, error } = await supabase
-      .from('dummy_activity')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const snapshot = await db.collection('dummy_activity')
+      .orderBy('created_at', 'desc')
       .limit(1)
+      .get()
 
-    if (error) {
-      console.error('Error fetching dummy activity:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch dummy activity' },
-        { status: 500 }
-      )
-    }
+    const lastActivity = snapshot.docs.length > 0 ? 
+      { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } : null
 
     return NextResponse.json(
       {
         success: true,
-        lastActivity: data[0] || null
+        lastActivity
       },
       { status: 200 }
     )

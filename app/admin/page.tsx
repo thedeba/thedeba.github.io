@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from 'react-hot-toast';
@@ -31,7 +32,7 @@ interface Project {
 }
 
 interface SpeakingEngagement {
-  id: number;
+  id: string;
   title: string;
   event: string;
   date: string;
@@ -40,7 +41,7 @@ interface SpeakingEngagement {
 }
 
 interface Publication {
-  id: number;
+  id: string;
   title: string;
   journal: string;
   date: string;
@@ -147,35 +148,17 @@ export default function Admin() {
 
   useEffect(() => {
     // Check authentication
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
         router.push('/auth/login');
         return;
       }
-      setUser(session.user);
+      setUser(user);
       setLoading(false);
-      loadData();
-    };
-
-    checkAuth();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        router.push('/auth/login');
-      } else {
-        setUser(session.user);
-      }
+      loadData(); // Load data when authenticated
     });
 
-    return () => {
-      subscription.unsubscribe();
-      // Cancel any ongoing requests when component unmounts
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
+    return () => unsubscribe();
   }, [router]);
 
   const loadData = async () => {
@@ -188,29 +171,60 @@ export default function Admin() {
     abortControllerRef.current = new AbortController();
     
     try {
+      console.log('Starting loadData...');
+      // Get authentication token
+      const user = auth.currentUser;
+      const token = user ? await user.getIdToken() : null;
+      
+      const headers: { [key: string]: string } = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      };
+      
+      console.log('Making API requests with headers:', headers);
+      
       const [blogsResponse, projectsResponse, speakingResponse, messagesResponse, statsResponse, experiencesResponse] = await Promise.all([
-        fetch('/api/blogs', { signal: abortControllerRef.current.signal }),
-        fetch('/api/projects', { signal: abortControllerRef.current.signal }),
-        fetch('/api/speaking-publications', { signal: abortControllerRef.current.signal }),
-        fetch('/api/contact-messages', { signal: abortControllerRef.current.signal }),
-        fetch('/api/stats', { signal: abortControllerRef.current.signal }),
-        fetch('/api/experiences', { signal: abortControllerRef.current.signal })
+        fetch('/api/blogs', { headers, signal: abortControllerRef.current.signal }),
+        fetch('/api/projects', { headers, signal: abortControllerRef.current.signal }),
+        fetch('/api/speaking-publications', { signal: abortControllerRef.current.signal }), // No auth headers for GET
+        fetch('/api/contact-messages', { headers, signal: abortControllerRef.current.signal }),
+        fetch('/api/stats', { headers, signal: abortControllerRef.current.signal }),
+        fetch('/api/experiences', { headers, signal: abortControllerRef.current.signal })
       ]);
+
+      console.log('API Responses:', {
+        blogs: blogsResponse.ok,
+        projects: projectsResponse.ok,
+        speaking: speakingResponse.ok,
+        messages: messagesResponse.ok,
+        stats: statsResponse.ok,
+        experiences: experiencesResponse.ok
+      });
 
       if (blogsResponse.ok) {
         const blogsData = await blogsResponse.json();
+        console.log('Blogs loaded:', blogsData.length);
         setBlogs(blogsData);
       }
 
       if (projectsResponse.ok) {
         const projectsData = await projectsResponse.json();
+        console.log('Projects loaded from API:', projectsData.length, projectsData);
         setProjects(projectsData);
+        console.log('Projects state set to:', projectsData.length);
+      } else {
+        console.error('Failed to load projects:', projectsResponse.status, projectsResponse.statusText);
       }
 
       if (speakingResponse.ok) {
         const speakingData = await speakingResponse.json();
+        console.log('Speaking data loaded:', speakingData);
         setSpeakingEngagements(speakingData.speakingEngagements || []);
         setPublications(speakingData.publications || []);
+        console.log('Set speaking engagements:', speakingData.speakingEngagements?.length || 0, 'items');
+        console.log('Set publications:', speakingData.publications?.length || 0, 'items');
+      } else {
+        console.error('Speaking response not ok:', speakingResponse.status, speakingResponse.statusText);
       }
 
       if (messagesResponse.ok) {
@@ -250,13 +264,17 @@ export default function Admin() {
 
     try {
       // Get session token
-      const { data: { session } } = await supabase.auth.getSession();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
       
       const response = await fetch(endpoint, {
         method,
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(body),
         signal: abortController.signal
@@ -293,13 +311,17 @@ export default function Admin() {
 
     try {
       // Get session token
-      const { data: { session } } = await supabase.auth.getSession();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
       
       const response = await fetch(endpoint, {
         method,
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(body),
         signal: abortController.signal
@@ -309,6 +331,9 @@ export default function Admin() {
         loadData();
         resetProjectForm();
         toast.success(`Project ${isEditing ? 'updated' : 'created'} successfully!`, { duration: 3000 });
+        
+        // Automatically switch to projects tab to show new data
+        setActiveTab('projects');
       } else {
         alert('Error saving data');
       }
@@ -336,13 +361,17 @@ export default function Admin() {
 
     try {
       // Get session token
-      const { data: { session } } = await supabase.auth.getSession();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
       
       const response = await fetch(endpoint, {
         method,
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(body),
         signal: abortController.signal
@@ -445,12 +474,16 @@ export default function Admin() {
 
     try {
       // Get session token
-      const { data: { session } } = await supabase.auth.getSession();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
       
       const response = await fetch(endpoint, { 
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${session?.access_token || ''}`
+          'Authorization': `Bearer ${token}`
         },
         signal: abortController.signal
       });
@@ -547,13 +580,17 @@ export default function Admin() {
 
     try {
       // Get session token
-      const { data: { session } } = await supabase.auth.getSession();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
       
       const response = await fetch(endpoint, {
         method,
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(body),
         signal: abortController.signal
@@ -579,22 +616,22 @@ export default function Admin() {
   };
 
   const addSpeakingEngagement = () => {
-    const newItem = { ...speakingFormData, id: Date.now() };
+    const newItem = { ...speakingFormData, id: Date.now().toString() };
     setSpeakingEngagements([...speakingEngagements, newItem]);
     setSpeakingFormData({ title: '', event: '', date: '', location: '', type: 'talk' });
   };
 
-  const removeSpeakingEngagement = (id: number) => {
+  const removeSpeakingEngagement = (id: string) => {
     setSpeakingEngagements(speakingEngagements.filter(item => item.id !== id));
   };
 
   const addPublication = () => {
-    const newItem = { ...publicationFormData, id: Date.now() };
+    const newItem = { ...publicationFormData, id: Date.now().toString() };
     setPublications([...publications, newItem]);
     setPublicationFormData({ title: '', journal: '', date: '', authors: '', link: '' });
   };
 
-  const removePublication = (id: number) => {
+  const removePublication = (id: string) => {
     setPublications(publications.filter(item => item.id !== id));
   };
 
@@ -603,13 +640,17 @@ export default function Admin() {
 
     try {
       // Get session token
-      const { data: { session } } = await supabase.auth.getSession();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
       
       const response = await fetch('/api/speaking-publications', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ speakingEngagements, publications }),
         signal: abortController.signal
@@ -679,7 +720,7 @@ export default function Admin() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
     router.push('/');
   };
 
@@ -704,6 +745,7 @@ export default function Admin() {
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">Admin Panel</h1>
               <p className="text-gray-300 text-sm sm:text-base">Manage your blogs and projects</p>
+              <p className="text-xs sm:text-sm text-blue-400 mt-1">Debug: Projects count: {projects.length}</p>
               {user && (
                 <p className="text-xs sm:text-sm text-gray-400 mt-1">
                   Logged in as: {user.email}
@@ -711,18 +753,18 @@ export default function Admin() {
               )}
             </div>
             <div className="flex gap-2 sm:gap-4">
-              <Link
-                href="/"
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors text-center"
-              >
-                View Site
-              </Link>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors"
               >
                 Logout
               </button>
+              <Link
+                href="/"
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors text-center"
+              >
+                View Site
+              </Link>
             </div>
           </div>
         </motion.div>
@@ -744,6 +786,7 @@ export default function Admin() {
           </button>
           <button
             onClick={() => {
+              console.log('Projects button clicked, setting activeTab to projects');
               setActiveTab('projects');
               resetProjectForm();
             }}
@@ -880,6 +923,10 @@ export default function Admin() {
                   </div>
 
                   <div className="space-y-2">
+                    {/* Debug info */}
+                    <div className="text-xs text-gray-400 mb-2">
+                      Debug: {speakingEngagements.length} speaking engagements loaded
+                    </div>
                     {speakingEngagements.map((item) => (
                       <div key={item.id} className="flex justify-between items-center p-3 bg-gray-600 rounded">
                         <div>
@@ -948,6 +995,10 @@ export default function Admin() {
                   </div>
 
                   <div className="space-y-2">
+                    {/* Debug info */}
+                    <div className="text-xs text-gray-400 mb-2">
+                      Debug: {publications.length} publications loaded
+                    </div>
                     {publications.map((item) => (
                       <div key={item.id} className="flex justify-between items-center p-3 bg-gray-600 rounded">
                         <div>

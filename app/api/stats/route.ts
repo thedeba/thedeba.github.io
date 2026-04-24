@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase-admin';
 
 export async function GET() {
   try {
-    const snapshot = await db.collection('stats').orderBy('created_at', 'asc').get();
+    const snapshot = await db.collection('stats').orderBy('created_at', 'desc').get();
     const stats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     return NextResponse.json(stats);
   } catch (error) {

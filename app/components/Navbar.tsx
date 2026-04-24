@@ -11,7 +11,7 @@ interface NavbarProps {
 export default function Navbar({ onScrollTo }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,14 +78,23 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
             >
               Resume
             </motion.a>
-            {isAdmin && (
+            {user ? (
               <motion.a
                 href="/admin"
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full text-sm font-semibold transition-colors"
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-full text-sm font-semibold transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Admin
+              </motion.a>
+            ) : (
+              <motion.a
+                href="/auth/login"
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full text-sm font-semibold transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Login
               </motion.a>
             )}
           </div>
@@ -148,12 +157,19 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
             >
               Resume
             </a>
-            {isAdmin && (
+            {user ? (
               <a
                 href="/admin"
-                className="block w-full text-center px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full text-sm font-semibold transition-colors"
+                className="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-full text-sm font-semibold transition-colors"
               >
                 Admin
+              </a>
+            ) : (
+              <a
+                href="/auth/login"
+                className="block w-full text-center px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full text-sm font-semibold transition-colors"
+              >
+                Login
               </a>
             )}
           </div>

@@ -50,7 +50,7 @@ export default function AdminLogin() {
             className="text-center mb-8"
           >
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-2">
-              Admin Portal
+              Management Portal
             </h1>
             <p className="text-gray-400 text-sm">
               Sign in to manage data
@@ -80,7 +80,7 @@ export default function AdminLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="admin@example.com"
+                //placeholder="admin@example.com"
               />
             </div>
 
@@ -95,7 +95,7 @@ export default function AdminLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="••••••••"
+                //placeholder="••••••••"
               />
             </div>
 

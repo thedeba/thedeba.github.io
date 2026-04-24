@@ -93,6 +93,7 @@ export default function Admin() {
   const [editingItem, setEditingItem] = useState<Blog | Project | SpeakingEngagement | Publication | Stat | Experience | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteItem, setDeleteItem] = useState<{ id: string; type: 'blog' | 'project' | 'stat' | 'experience' } | null>(null);
+  const [showEmailLogout, setShowEmailLogout] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Form states
@@ -615,24 +616,140 @@ export default function Admin() {
     }
   };
 
-  const addSpeakingEngagement = () => {
-    const newItem = { ...speakingFormData, id: Date.now().toString() };
-    setSpeakingEngagements([...speakingEngagements, newItem]);
-    setSpeakingFormData({ title: '', event: '', date: '', location: '', type: 'talk' });
+  const addSpeakingEngagement = async () => {
+    try {
+      // Get session token
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
+      
+      const newItem = { ...speakingFormData, id: Date.now().toString() };
+      const updatedSpeakingEngagements = [...speakingEngagements, newItem];
+      
+      const response = await fetch('/api/speaking-publications', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ speakingEngagements: updatedSpeakingEngagements, publications }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        // Update local state with the data returned from database (which has correct IDs)
+        setSpeakingEngagements(result.data.speakingEngagements);
+        setSpeakingFormData({ title: '', event: '', date: '', location: '', type: 'talk' });
+      } else {
+        throw new Error('Error saving to database');
+      }
+    } catch (error) {
+      console.error('Error adding speaking engagement:', error);
+      throw error;
+    }
   };
 
-  const removeSpeakingEngagement = (id: string) => {
-    setSpeakingEngagements(speakingEngagements.filter(item => item.id !== id));
+  const removeSpeakingEngagement = async (id: string) => {
+    try {
+      // Get session token
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
+      
+      const updatedSpeakingEngagements = speakingEngagements.filter(item => item.id !== id);
+      
+      const response = await fetch('/api/speaking-publications', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ speakingEngagements: updatedSpeakingEngagements, publications }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        // Update local state with the data returned from database
+        setSpeakingEngagements(result.data.speakingEngagements);
+      } else {
+        throw new Error('Error saving to database');
+      }
+    } catch (error) {
+      console.error('Error removing speaking engagement:', error);
+      toast.error('Error removing speaking engagement');
+    }
   };
 
-  const addPublication = () => {
-    const newItem = { ...publicationFormData, id: Date.now().toString() };
-    setPublications([...publications, newItem]);
-    setPublicationFormData({ title: '', journal: '', date: '', authors: '', link: '' });
+  const addPublication = async () => {
+    try {
+      // Get session token
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
+      
+      const newItem = { ...publicationFormData, id: Date.now().toString() };
+      const updatedPublications = [...publications, newItem];
+      
+      const response = await fetch('/api/speaking-publications', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ speakingEngagements, publications: updatedPublications }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        // Update local state with the data returned from database (which has correct IDs)
+        setPublications(result.data.publications);
+        setPublicationFormData({ title: '', journal: '', date: '', authors: '', link: '' });
+      } else {
+        throw new Error('Error saving to database');
+      }
+    } catch (error) {
+      console.error('Error adding publication:', error);
+      throw error;
+    }
   };
 
-  const removePublication = (id: string) => {
-    setPublications(publications.filter(item => item.id !== id));
+  const removePublication = async (id: string) => {
+    try {
+      // Get session token
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const token = await user.getIdToken();
+      
+      const updatedPublications = publications.filter(item => item.id !== id);
+      
+      const response = await fetch('/api/speaking-publications', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ speakingEngagements, publications: updatedPublications }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        // Update local state with the data returned from database
+        setPublications(result.data.publications);
+      } else {
+        throw new Error('Error saving to database');
+      }
+    } catch (error) {
+      console.error('Error removing publication:', error);
+      toast.error('Error removing publication');
+    }
   };
 
   const handleSpeakingSave = async () => {
@@ -741,289 +858,492 @@ export default function Admin() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 lg:mb-8"
         >
-          <div className="flex justify-between items-start gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">Admin Panel</h1>
-              <p className="text-gray-300 text-sm sm:text-base">Manage your blogs and projects</p>
-              <p className="text-xs sm:text-sm text-blue-400 mt-1">Debug: Projects count: {projects.length}</p>
-              {user && (
-                <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                  Logged in as: {user.email}
-                </p>
-              )}
-            </div>
-            <div className="flex gap-2 sm:gap-4">
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors"
-              >
-                Logout
-              </button>
-              <Link
-                href="/"
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors text-center"
-              >
-                View Site
-              </Link>
+          <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50 shadow-2xl">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                    Management Portal
+                  </h1>
+                </div>
+                <p className="text-gray-400 text-base sm:text-lg">Manage your data with ease</p>
+              </div>
+              <div className="flex flex-col items-end gap-3">
+                <div className="flex items-center gap-3">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Link
+                      href="/"
+                      className="group relative px-5 py-2.5 bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 border border-blue-500/30 hover:border-blue-400/50 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                      <span className="text-blue-300 group-hover:text-white transition-colors">View Site</span>
+                    </Link>
+                  </motion.div>
+                  {user && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowEmailLogout(!showEmailLogout)}
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 hover:border-blue-400/50 rounded-lg transition-all duration-300 cursor-pointer"
+                      >
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-blue-300 font-medium">{user.email}</span>
+                        <svg className="w-3 h-3 text-blue-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {showEmailLogout && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="absolute top-full mt-2 right-0 z-50"
+                        >
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-600/20 border border-red-500/30 hover:bg-red-600/30 rounded-lg transition-all duration-300"
+                          >
+                            <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span className="text-sm text-red-300 font-medium">Logout</span>
+                          </button>
+                        </motion.div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6 lg:mb-8">
-          <button
-            onClick={() => {
-              setActiveTab('blogs');
-              resetBlogForm();
-            }}
-            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-              activeTab === 'blogs'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Blogs
-          </button>
-          <button
-            onClick={() => {
-              console.log('Projects button clicked, setting activeTab to projects');
-              setActiveTab('projects');
-              resetProjectForm();
-            }}
-            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-              activeTab === 'projects'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Projects
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('speaking');
-            }}
-            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-              activeTab === 'speaking'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            <span className="hidden sm:inline">Speaking & Publications</span>
-            <span className="sm:hidden">Speaking</span>
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('messages');
-            }}
-            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-              activeTab === 'messages'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Messages ({contactMessages.filter(m => m.status === 'unread').length})
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('stats');
-              resetStatForm();
-            }}
-            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-              activeTab === 'stats'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Stats
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('experiences');
-              resetExperienceForm();
-            }}
-            className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-              activeTab === 'experiences'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Experiences
-          </button>
+        <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl p-2 border border-gray-700/50 shadow-xl mb-6 lg:mb-8">
+          <div className="flex flex-wrap gap-1">
+            <motion.button
+              onClick={() => {
+                setActiveTab('blogs');
+                resetBlogForm();
+              }}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base relative overflow-hidden ${
+                activeTab === 'blogs'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25'
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              whileHover={{ scale: activeTab === 'blogs' ? 1 : 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                </svg>
+                Blogs
+              </span>
+              {activeTab === 'blogs' && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl"
+                  initial={false}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+            </motion.button>
+            <motion.button
+              onClick={() => {
+                console.log('Projects button clicked, setting activeTab to projects');
+                setActiveTab('projects');
+                resetProjectForm();
+              }}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base relative overflow-hidden ${
+                activeTab === 'projects'
+                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/25'
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              whileHover={{ scale: activeTab === 'projects' ? 1 : 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                Projects
+              </span>
+              {activeTab === 'projects' && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl"
+                  initial={false}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+            </motion.button>
+            <motion.button
+              onClick={() => {
+                setActiveTab('speaking');
+              }}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base relative overflow-hidden ${
+                activeTab === 'speaking'
+                  ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg shadow-green-500/25'
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              whileHover={{ scale: activeTab === 'speaking' ? 1 : 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                </svg>
+                <span className="hidden sm:inline">Speaking & Publications</span>
+                <span className="sm:hidden">Speaking</span>
+              </span>
+              {activeTab === 'speaking' && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-gradient-to-r from-green-600 to-green-700 rounded-xl"
+                  initial={false}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+            </motion.button>
+            <motion.button
+              onClick={() => {
+                setActiveTab('messages');
+              }}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base relative overflow-hidden ${
+                activeTab === 'messages'
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/25'
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              whileHover={{ scale: activeTab === 'messages' ? 1 : 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Messages ({contactMessages.filter(m => m.status === 'unread').length})
+              </span>
+              {activeTab === 'messages' && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700 rounded-xl"
+                  initial={false}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+            </motion.button>
+            <motion.button
+              onClick={() => {
+                setActiveTab('stats');
+                resetStatForm();
+              }}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base relative overflow-hidden ${
+                activeTab === 'stats'
+                  ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg shadow-yellow-500/25'
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              whileHover={{ scale: activeTab === 'stats' ? 1 : 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Stats
+              </span>
+              {activeTab === 'stats' && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-gradient-to-r from-yellow-600 to-yellow-700 rounded-xl"
+                  initial={false}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+            </motion.button>
+            <motion.button
+              onClick={() => {
+                setActiveTab('experiences');
+                resetExperienceForm();
+              }}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base relative overflow-hidden ${
+                activeTab === 'experiences'
+                  ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/25'
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              whileHover={{ scale: activeTab === 'experiences' ? 1 : 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A6.937 6.937 0 0112 20.255 6.937 6.937 0 013 13.255V6.937A6.937 6.937 0 0112 0a6.937 6.937 0 019 6.937v6.318zM12 12a3 3 0 100-6 3 3 0 000 6z" />
+                </svg>
+                Experiences
+              </span>
+              {activeTab === 'experiences' && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl"
+                  initial={false}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+            </motion.button>
+          </div>
         </div>
         
 
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+        <div className={`${activeTab === 'speaking' ? 'grid-cols-1' : 'lg:grid-cols-2'} gap-6 lg:gap-8`}>
           {/* Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-gray-800 rounded-lg p-6"
+            className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl p-8 border border-gray-700/50 shadow-2xl"
           >
-            <h2 className="text-2xl font-bold mb-6">
-              {activeTab === 'messages' ? 'Contact Messages' :
-               activeTab === 'speaking' ? 'Speaking & Publications Management' : 
-               activeTab === 'stats' ? 'Stats Management' :
-               activeTab === 'experiences' ? 'Experience Management' :
-               isEditing ? 'Edit' : 'Add'} {activeTab === 'blogs' ? 'Blog' : 
-               activeTab === 'projects' ? 'Project' : 
-               activeTab === 'experiences' ? 'Experience' : ''}
-            </h2>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                {activeTab === 'messages' ? 'Contact Messages' :
+                 activeTab === 'speaking' ? 'Speaking & Publications Management' : 
+                 activeTab === 'stats' ? 'Stats Management' :
+                 activeTab === 'experiences' ? 'Experience Management' :
+                 isEditing ? 'Edit' : 'Add'} {activeTab === 'blogs' ? 'Blog' : 
+                 activeTab === 'projects' ? 'Project' : 
+                 activeTab === 'experiences' ? 'Experience' : ''}
+              </h2>
+            </div>
 
             {activeTab === 'speaking' ? (
-              <div className="space-y-8">
-                {/* Speaking Engagements Section */}
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="text-xl font-semibold mb-4">Speaking Engagements</h3>
+              <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+                {/* Speaking Engagements Section - Left */}
+                <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-600/50">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <h3 className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent">Speaking Engagements</h3>
+                  </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                    <input
+                  <div className="space-y-4 mb-6">
+                    <motion.input
                       type="text"
                       placeholder="Title"
-                      className="p-2 bg-gray-600 rounded text-sm"
+                      className="w-full px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                       value={speakingFormData.title}
                       onChange={(e) => setSpeakingFormData({...speakingFormData, title: e.target.value})}
+                      whileFocus={{ scale: 1.02 }}
                     />
-                    <input
+                    <motion.input
                       type="text"
                       placeholder="Event"
-                      className="p-2 bg-gray-600 rounded text-sm"
+                      className="w-full px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                       value={speakingFormData.event}
                       onChange={(e) => setSpeakingFormData({...speakingFormData, event: e.target.value})}
+                      whileFocus={{ scale: 1.02 }}
                     />
-                    <input
-                      type="text"
-                      placeholder="Date (e.g., January 2024)"
-                      className="p-2 bg-gray-600 rounded text-sm"
-                      value={speakingFormData.date}
-                      onChange={(e) => setSpeakingFormData({...speakingFormData, date: e.target.value})}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Location"
-                      className="p-2 bg-gray-600 rounded text-sm"
-                      value={speakingFormData.location}
-                      onChange={(e) => setSpeakingFormData({...speakingFormData, location: e.target.value})}
-                    />
-                    <select
-                      className="p-2 bg-gray-600 rounded text-sm"
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <motion.input
+                        type="text"
+                        placeholder="Date (e.g., January 2024)"
+                        className="px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                        value={speakingFormData.date}
+                        onChange={(e) => setSpeakingFormData({...speakingFormData, date: e.target.value})}
+                        whileFocus={{ scale: 1.02 }}
+                      />
+                      <motion.input
+                        type="text"
+                        placeholder="Location"
+                        className="px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                        value={speakingFormData.location}
+                        onChange={(e) => setSpeakingFormData({...speakingFormData, location: e.target.value})}
+                        whileFocus={{ scale: 1.02 }}
+                      />
+                    </div>
+                    <motion.select
+                      className="w-full px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                       value={speakingFormData.type}
                       onChange={(e) => setSpeakingFormData({...speakingFormData, type: e.target.value as any})}
+                      whileFocus={{ scale: 1.02 }}
                     >
                       <option value="talk">Talk</option>
                       <option value="workshop">Workshop</option>
                       <option value="panel">Panel</option>
-                    </select>
-                    <button
+                    </motion.select>
+                    <motion.button
                       type="button"
-                      onClick={addSpeakingEngagement}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium"
+                      onClick={() => {
+                        if (speakingFormData.title && speakingFormData.event && speakingFormData.date) {
+                          addSpeakingEngagement();
+                          toast.success('Speaking engagement added successfully!');
+                        } else {
+                          toast.error('Please fill in required fields');
+                        }
+                      }}
+                      className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 rounded-lg font-semibold text-white shadow-lg shadow-green-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
                       Add Engagement
-                    </button>
+                    </motion.button>
                   </div>
 
-                  <div className="space-y-2">
-                    {/* Debug info */}
-                    <div className="text-xs text-gray-400 mb-2">
-                      Debug: {speakingEngagements.length} speaking engagements loaded
-                    </div>
-                    {speakingEngagements.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center p-3 bg-gray-600 rounded">
-                        <div>
-                          <h4 className="font-medium">{item.title}</h4>
-                          <p className="text-sm text-gray-300">{item.event} • {item.date}</p>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {speakingEngagements.map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex justify-between items-center p-4 bg-gray-600/30 border border-gray-500/30 rounded-lg hover:bg-gray-600/50 transition-all duration-300"
+                      >
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-white mb-1">{item.title}</h4>
+                          <p className="text-sm text-gray-300">{item.event} • {item.date} • {item.location}</p>
+                          <span className="inline-block px-2 py-1 bg-green-600/30 text-green-300 text-xs rounded-full mt-2">
+                            {item.type}
+                          </span>
                         </div>
-                        <button
+                        <motion.button
                           type="button"
-                          onClick={() => removeSpeakingEngagement(item.id)}
-                          className="text-red-400 hover:text-red-300"
+                          onClick={() => {
+                            removeSpeakingEngagement(item.id);
+                            toast.success('Speaking engagement removed');
+                          }}
+                          className="ml-4 p-2 text-red-400 hover:text-red-300 hover:bg-red-600/20 rounded-lg transition-all duration-300"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
                         >
-                          Remove
-                        </button>
-                      </div>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </motion.button>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
 
-                {/* Publications Section */}
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="text-xl font-semibold mb-4">Publications</h3>
+                {/* Publications Section - Right */}
+                <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-600/50">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                    <h3 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">Publications</h3>
+                  </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <input
+                  <div className="space-y-4 mb-6">
+                    <motion.input
                       type="text"
                       placeholder="Title"
-                      className="p-2 bg-gray-600 rounded text-sm"
+                      className="w-full px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                       value={publicationFormData.title}
                       onChange={(e) => setPublicationFormData({...publicationFormData, title: e.target.value})}
+                      whileFocus={{ scale: 1.02 }}
                     />
-                    <input
+                    <motion.input
                       type="text"
                       placeholder="Journal/Conference"
-                      className="p-2 bg-gray-600 rounded text-sm"
+                      className="w-full px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                       value={publicationFormData.journal}
                       onChange={(e) => setPublicationFormData({...publicationFormData, journal: e.target.value})}
+                      whileFocus={{ scale: 1.02 }}
                     />
-                    <input
-                      type="text"
-                      placeholder="Date (e.g., 2024)"
-                      className="p-2 bg-gray-600 rounded text-sm"
-                      value={publicationFormData.date}
-                      onChange={(e) => setPublicationFormData({...publicationFormData, date: e.target.value})}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Authors"
-                      className="p-2 bg-gray-600 rounded text-sm"
-                      value={publicationFormData.authors}
-                      onChange={(e) => setPublicationFormData({...publicationFormData, authors: e.target.value})}
-                    />
-                    <input
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <motion.input
+                        type="text"
+                        placeholder="Date (e.g., 2024)"
+                        className="px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        value={publicationFormData.date}
+                        onChange={(e) => setPublicationFormData({...publicationFormData, date: e.target.value})}
+                        whileFocus={{ scale: 1.02 }}
+                      />
+                      <motion.input
+                        type="text"
+                        placeholder="Authors"
+                        className="px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        value={publicationFormData.authors}
+                        onChange={(e) => setPublicationFormData({...publicationFormData, authors: e.target.value})}
+                        whileFocus={{ scale: 1.02 }}
+                      />
+                    </div>
+                    <motion.input
                       type="url"
                       placeholder="Link to publication"
-                      className="p-2 bg-gray-600 rounded text-sm sm:col-span-2"
+                      className="w-full px-4 py-3 bg-gray-600/50 border border-gray-500/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                       value={publicationFormData.link}
                       onChange={(e) => setPublicationFormData({...publicationFormData, link: e.target.value})}
+                      whileFocus={{ scale: 1.02 }}
                     />
-                    <button
+                    <motion.button
                       type="button"
-                      onClick={addPublication}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium text-sm sm:col-span-2"
+                      onClick={() => {
+                        if (publicationFormData.title && publicationFormData.journal && publicationFormData.date) {
+                          addPublication();
+                          toast.success('Publication added successfully!');
+                        } else {
+                          toast.error('Please fill in required fields');
+                        }
+                      }}
+                      className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-700 hover:from-purple-700 hover:to-pink-800 rounded-lg font-semibold text-white shadow-lg shadow-purple-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
                       Add Publication
-                    </button>
+                    </motion.button>
                   </div>
 
-                  <div className="space-y-2">
-                    {/* Debug info */}
-                    <div className="text-xs text-gray-400 mb-2">
-                      Debug: {publications.length} publications loaded
-                    </div>
-                    {publications.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center p-3 bg-gray-600 rounded">
-                        <div>
-                          <h4 className="font-medium">{item.title}</h4>
-                          <p className="text-sm text-gray-300">{item.journal} • {item.date}</p>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {publications.map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex justify-between items-center p-4 bg-gray-600/30 border border-gray-500/30 rounded-lg hover:bg-gray-600/50 transition-all duration-300"
+                      >
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-white mb-1">{item.title}</h4>
+                          <p className="text-sm text-gray-300 mb-2">{item.journal} • {item.date}</p>
+                          <p className="text-xs text-gray-400 mb-2">Authors: {item.authors}</p>
+                          {item.link && (
+                            <a
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                              View Publication
+                            </a>
+                          )}
                         </div>
-                        <button
+                        <motion.button
                           type="button"
-                          onClick={() => removePublication(item.id)}
-                          className="text-red-400 hover:text-red-300"
+                          onClick={() => {
+                            removePublication(item.id);
+                            toast.success('Publication removed');
+                          }}
+                          className="ml-4 p-2 text-red-400 hover:text-red-300 hover:bg-red-600/20 rounded-lg transition-all duration-300"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
                         >
-                          Remove
-                        </button>
-                      </div>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </motion.button>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleSpeakingSave}
-                  className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium"
-                >
-                  Save All Changes
-                </button>
               </div>
             ) : activeTab === 'blogs' ? (
               <form onSubmit={handleBlogSubmit} className="space-y-4">
@@ -1386,6 +1706,7 @@ export default function Admin() {
           </motion.div>
 
           {/* List */}
+          {activeTab !== 'speaking' && (
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -1393,44 +1714,17 @@ export default function Admin() {
           >
             <h2 className="text-2xl font-bold mb-6">
               {activeTab === 'messages' ? 'Contact Messages' :
-               activeTab === 'speaking' ? 'Current Speaking & Publications' :
                activeTab === 'stats' ? 'Stats' :
                activeTab === 'blogs' ? 'Blog Posts' : 
                activeTab === 'experiences' ? 'Experiences' : 'Projects'} 
               ({activeTab === 'messages' ? contactMessages.length :
-                activeTab === 'speaking' ? `${speakingEngagements.length + publications.length} items` :
                 activeTab === 'stats' ? stats.length :
                 activeTab === 'blogs' ? blogs.length : 
                 activeTab === 'experiences' ? experiences.length : projects.length})
             </h2>
 
             <div className="space-y-4 max-h-[500px] overflow-y-auto">
-              {activeTab === 'speaking' ? (
-                <>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold text-blue-400">Speaking Engagements ({speakingEngagements.length})</h3>
-                    {speakingEngagements.map((item) => (
-                      <div key={item.id} className="bg-gray-700 rounded-lg p-4">
-                        <h4 className="font-semibold mb-1">{item.title}</h4>
-                        <p className="text-sm text-gray-300 mb-2">{item.event} • {item.date} • {item.location}</p>
-                        <span className="inline-block px-2 py-1 bg-blue-600 text-xs rounded mb-2">
-                          {item.type}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold text-purple-400">Publications ({publications.length})</h3>
-                    {publications.map((item) => (
-                      <div key={item.id} className="bg-gray-700 rounded-lg p-4">
-                        <h4 className="font-semibold mb-1">{item.title}</h4>
-                        <p className="text-sm text-gray-300 mb-2">{item.journal} • {item.date}</p>
-                        <p className="text-sm text-gray-400">{item.authors}</p>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : activeTab === 'blogs' ? (
+              {activeTab === 'blogs' ? (
                 blogs.map((item) => (
                   <div key={item.id} className="bg-gray-700 rounded-lg p-4">
                     <h3 className="font-semibold mb-2">{item.title}</h3>
@@ -1596,6 +1890,7 @@ export default function Admin() {
               ) : null}
             </div>
           </motion.div>
+          )}
         </div>
 
         {/* Delete Confirmation Modal */}

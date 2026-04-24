@@ -116,7 +116,7 @@ export default function Stats() {
               viewport={{ once: true }}
               className="text-center group"
             >
-              <div className="text-3xl md:text-4xl font-bold text-blue-400 mb-2 group-hover:text-blue-300 transition-colors">
+              <div className="text-3xl md:text-4xl font-bold text-blue-400 mb-2 group-hover:text-blue-300 transition-colors text-center">
                 <Counter value={stat.value} suffix={stat.suffix} />
               </div>
               <div className="text-gray-400 group-hover:text-gray-300 transition-colors">
